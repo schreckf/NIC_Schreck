@@ -1,0 +1,63 @@
+\headcommand {\slideentry {0}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {1}{1}}
+\headcommand {\beamer@subsectionpages {1}{1}}
+\headcommand {\sectionentry {1}{Motivation}{2}{Motivation}{0}}
+\headcommand {\slideentry {1}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {2}{1}}
+\headcommand {\beamer@subsectionpages {2}{1}}
+\headcommand {\sectionentry {2}{Outline}{2}{Outline}{0}}
+\headcommand {\slideentry {2}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {2}{1}}
+\headcommand {\beamer@subsectionpages {2}{1}}
+\headcommand {\sectionentry {3}{Ensemble Learning}{2}{Ensemble Learning}{0}}
+\headcommand {\slideentry {3}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\slideentry {3}{0}{2}{2/2}{}{0}}
+\headcommand {\beamer@framepages {2}{2}}
+\headcommand {\beamer@sectionpages {2}{2}}
+\headcommand {\beamer@subsectionpages {2}{2}}
+\headcommand {\sectionentry {4}{Decision Tree}{3}{Decision Tree}{0}}
+\headcommand {\slideentry {4}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {3}{1}}
+\headcommand {\beamer@subsectionpages {3}{1}}
+\headcommand {\sectionentry {5}{Bagging and Random Forest}{2}{Bagging and Random Forest}{0}}
+\headcommand {\slideentry {5}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\slideentry {5}{0}{2}{2/2}{}{0}}
+\headcommand {\beamer@framepages {2}{2}}
+\headcommand {\beamer@sectionpages {2}{2}}
+\headcommand {\beamer@subsectionpages {2}{2}}
+\headcommand {\sectionentry {6}{Boosting and Gradient Boosting}{3}{Boosting and Gradient Boosting}{0}}
+\headcommand {\slideentry {6}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\slideentry {6}{0}{2}{2/2}{}{0}}
+\headcommand {\beamer@framepages {2}{2}}
+\headcommand {\beamer@sectionpages {3}{2}}
+\headcommand {\beamer@subsectionpages {3}{2}}
+\headcommand {\sectionentry {7}{Bayes??}{3}{Bayes??}{0}}
+\headcommand {\slideentry {7}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {3}{1}}
+\headcommand {\beamer@subsectionpages {3}{1}}
+\headcommand {\sectionentry {8}{Stacked Generalization}{2}{Stacked Generalization}{0}}
+\headcommand {\slideentry {8}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {2}{1}}
+\headcommand {\beamer@subsectionpages {2}{1}}
+\headcommand {\sectionentry {9}{Potentials and Problems of Ensemble Learning}{2}{Potentials and Problems of Ensemble Learning}{0}}
+\headcommand {\slideentry {9}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {2}{1}}
+\headcommand {\beamer@subsectionpages {2}{1}}
+\headcommand {\sectionentry {10}{Sources}{2}{Sources}{0}}
+\headcommand {\slideentry {10}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@partpages {1}{1}}
+\headcommand {\beamer@subsectionpages {2}{1}}
+\headcommand {\beamer@sectionpages {2}{1}}
+\headcommand {\beamer@documentpages {1}}
+\headcommand {\gdef \inserttotalframenumber {14}}

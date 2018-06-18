@@ -1,0 +1,225 @@
+\documentclass{beamer}
+
+\usepackage{graphicx}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{eso-pic}
+\usepackage{mathrsfs}
+\usepackage{url}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{booktabs}
+% \usepackage{bbm}
+\usepackage{cooltooltips}
+\usepackage{colordef}
+\usepackage{beamerdefs}
+\usepackage{lvblisting}
+
+
+\pgfdeclareimage[height=2cm]{logobig}{hulogo}
+\pgfdeclareimage[height=0.7cm]{logosmall}{Figures/LOB_Logo}
+
+\renewcommand{\titlescale}{1.0}
+\renewcommand{\titlescale}{1.0}
+\renewcommand{\leftcol}{0.6}
+
+\title[Stacking Algorithm for Ensemble Modelling]{Stacking Algorithm for Ensemble Modelling}
+\authora{Frederik Schreck}
+\authorb{}
+\authorc{}
+
+\def\linka{}
+\def\linkb{}
+\def\linkc{}
+
+\institute{Course: Numerical Introductory Course \\
+Lecturer: Prof. Dr. Brenda López Cabrera
+Humboldt--Universität zu Berlin \\}
+
+\hypersetup{pdfpagemode=FullScreen}
+
+\begin{document}
+
+% 0-1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame[plain]{
+\titlepage
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Motivation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Motivation - The wisdom of the crowd}
+\begin{itemize}
+\item The aggregation of individual guesses	 in groups is often superior to individual guesses - even to experts
+\item BUT: Only fulfilled under certain criteria %\cite{Surowiecki:2005:WC:1095645}:
+	\begin{itemize}
+	\item Variation of guesses
+	\item Independence of guesses
+	\item Decentralization 
+	\item Algorithm
+	\end{itemize}
+\end{itemize}
+}
+
+%TEXT: 
+%Start with this story: In 1906, Francis Galton's went to a county fair, and attended an interesting contest. People were asked to guess the %weight of an ox. About 800 visitors of the fair gave a guess, but no one in the end got the exact result: 1.198 pounds. %However, when aggregating the individual guesses, the average was really close: 1,197 pounds. 
+
+% The concept behind this is known as "wisdom of the cloud"
+
+%	Independence of guesses = people decide independent from each other. Or only small correlation of individual guesses. I will come back later to this point.
+% 	Decentralization = 	People are able to specialize and draw their knowledge (?); 
+%	Algorithm = results clearly depend on whether mean or median or s.th. else
+
+% Exactly, this is the motica
+
+%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Outline}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Outline}
+
+\begin{enumerate}
+\item Motivation \quad \checkmark
+\item Ensemble Learning
+\item Decision Tree
+\item Bagging and Random Forest
+\item Boosting and Gradient Boosting
+\item Bayes??
+\item Stacked Generalization
+\item Potentials and Problems of Ensemble Learning
+%\item The German Credit Dataset
+\item Sources
+\end{enumerate}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ensemble Learning}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Ensemble Learning - Terminology}
+Machine Learning
+\begin{itemize}
+\item Part of computer science that uses statistical techniques to train models on data
+\item Typically used for prediction purposes
+\end{itemize}
+\vspace{0.5cm}
+Ensemble Learning
+\begin{itemize}
+\item Idea is to combine hypotheses of multiple learning algorithms (base learners)
+% explain word "hypothesis". So we combine the base learners' hypotheses in order to get a new hypothesis. Finite set of base learners used. 
+\item Goal is to obtain a better predictive performance than with each of the single algorithms alone
+\item Mainly used in supervised learning
+% There have been some applications in unsupervised models, like for example "consensus clustering" but in general ensembling focuses on supervised learning.
+\item Very flexible method
+% The ensembling hypothesis, however, is not necessarily contained within the hypothesis space of the models from which it is built.Ensembles can be shown to have more flexibility in the functions they can represent.
+\end{itemize}
+}
+
+
+\frame{
+\frametitle{Ensemble Learning}
+Which models to combine?
+\begin{itemize}
+\item Effective ensembling builds on diverse and low correlated models %\cite{kuncheva2003measures}
+\item Best to use strong base learners
+% Research has been shown that ensembling is most effective when base learners already have good predictions.
+% SO, we see the same criteria than I mentioned in the motivation of this presentation! Also clearly the choice of algorithm is important. In the next sections, I will introduce different stacking models in ensemble modelling. But first, for all of you to be able to follow, I want to shortly explain the concept behind Decisions Trees, since Trees are very often chosen ase base learners in ensemble models.
+\end{itemize}
+\vspace{0.5cm}
+Similar criteria as mentioned in the Motivation!
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Decision Tree}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Decision Tree}
+blalala
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Bagging and Random Forest}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Bagging}
+blalala
+}
+
+
+\frame{
+\frametitle{Random Forest}
+blalala
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Boosting and Gradient Boosting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Boosting}
+blalala
+}
+
+
+\frame{
+\frametitle{Gradient Boosting}
+blalala
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Bayes??}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Bayes??}
+blalala
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Stacked Generalization}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Stacked Generalization}
+blalala
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Potentials and Problems of Ensemble Learning}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Potentials and Problems of Ensemble Learning}
+blalala
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sources}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Sources}
+\bibliographystyle{apa}
+\bibliography{library}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

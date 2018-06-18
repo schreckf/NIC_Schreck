@@ -20,6 +20,8 @@
 \usepackage{beamerdefs}
 \usepackage{lvblisting}
 
+\usepackage{sansmathaccent} % to be able to use math without error
+\pdfmapfile{+sansmathaccent.map}
 
 \pgfdeclareimage[height=2cm]{logobig}{hulogo}
 \pgfdeclareimage[height=0.7cm]{logosmall}{Figures/LOB_Logo}
@@ -94,12 +96,15 @@ Humboldt--Universität zu Berlin \\}
 \item Motivation \quad \checkmark
 \item Ensemble Learning
 \item Decision Tree
+\item Stacking algorithms
+\begin{enumerate}
 \item Bagging and Random Forest
 \item Boosting and Gradient Boosting
 \item Bayes??
 \item Stacked Generalization
+\end{enumerate}
 \item Potentials and Problems of Ensemble Learning
-%\item The German Credit Dataset
+\item The German Credit Dataset
 \item Sources
 \end{enumerate}
 }
@@ -117,7 +122,7 @@ Machine Learning
 \item Typically used for prediction purposes
 \end{itemize}
 \vspace{0.5cm}
-Ensemble Learning
+Stacking and Ensemble Learning
 \begin{itemize}
 \item Idea is to combine hypotheses of multiple learning algorithms (base learners)
 % explain word "hypothesis". So we combine the base learners' hypotheses in order to get a new hypothesis. Finite set of base learners used. 
@@ -134,7 +139,7 @@ Ensemble Learning
 \frametitle{Ensemble Learning}
 Which models to combine?
 \begin{itemize}
-\item Effective ensembling builds on diverse and low correlated models %\cite{kuncheva2003measures}
+\item Effective ensembling builds on diverse and little correlated models %\cite{kuncheva2003measures}
 \item Best to use strong base learners
 % Research has been shown that ensembling is most effective when base learners already have good predictions.
 % SO, we see the same criteria than I mentioned in the motivation of this presentation! Also clearly the choice of algorithm is important. In the next sections, I will introduce different stacking models in ensemble modelling. But first, for all of you to be able to follow, I want to shortly explain the concept behind Decisions Trees, since Trees are very often chosen ase base learners in ensemble models.
@@ -151,8 +156,59 @@ Similar criteria as mentioned in the Motivation!
 
 \frame{
 \frametitle{Decision Tree}
-blalala
+\begin{itemize}
+\item Idea: use a set of splitting rules to recursively partition the dataset.
+\item Classification trees:
+\begin{itemize}
+\item Minimize impurity within nodes
+\end{itemize}
+\item Regression trees:
+\begin{itemize}
+\item Minimize variance of the response variable within nodes
+\end{itemize}
+\end{itemize}
 }
+% Draw two pictures for classification tree: one twodimensional graph (x-axis = age, y-axis = wage; Dependente var = risky customer (YES/NO); draw some dots into graph and separate them by lines while explaining the tree. Second plot is the tree structure.--> Explain how tree is build. And then explain how tree is used for prediction of a new datapoint.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Decision Tree}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Since I evaluate a classification task in my paper, I will here focus on classification tree (and later stacking models for classification tasks.)
+\frame{
+\frametitle{Decision Tree for classification}
+\begin{itemize}
+\item Choice of splitting rule: maximizing information gain (IG) by decreasing node impurity (I) 
+\begin{flalign}
+IG_n = I_n - p_{n_1} * I(n_1) - p_{n_2} * I(n_2),
+\end{flalign}
+for node $n$ with branching nodes $n_1$ and $n_2$, and $p_{n_i}$ as the fraction of cases in branching node $n_i$\\
+\item How to measure impurity? Choices of splitting criteria:
+\begin{flalign}
+&\text{Entropy:} I(n) = -\sum_{j}^{J} p(c_j|n) * \log_{2}(p(c_j|n))\\
+&\text{Gini impurity:} I(n) = 1 - \sum_{j}^{J} p(c_j|n)^2\\
+&\text{Misclassification impurity:} I(n) = 1 - \max_{{j}}	p(c_j),
+\end{flalign}
+for classes $c_j, j \in J = \{1,2,...\}$
+\end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Decision Tree}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{
+\frametitle{Decision Tree for classification}
+\begin{itemize}
+\item Choice of stopping rule:
+A fully grown tree has pure leaf nodes and may overfit the data
+\begin{itemize}
+\item Pre-pruning
+\item Post-pruning
+\end{itemize}
+\end{itemize}
+}
+%prepruning means to not grow tree fully but stop earlier-->Choice of stopping criteria (e.g. maximal depth)
+%postpruning means to first fully grow the tree, and then cut the branches that are less important w.r.t. e.g. the decrease of impurity. For that we use new data.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bagging and Random Forest}

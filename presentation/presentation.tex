@@ -23,6 +23,8 @@
 \usepackage{sansmathaccent} % to be able to use math without error
 \pdfmapfile{+sansmathaccent.map}
 
+\usepackage[square,sort]{natbib}
+
 \pgfdeclareimage[height=2cm]{logobig}{hulogo}
 \pgfdeclareimage[height=0.7cm]{logosmall}{Figures/LOB_Logo}
 
@@ -30,7 +32,7 @@
 \renewcommand{\titlescale}{1.0}
 \renewcommand{\leftcol}{0.6}
 
-\title[Stacking Algorithm for Ensemble Modelling]{Stacking Algorithm for Ensemble Modelling}
+\title[Stacking Algorithm for Ensemble Modelling]{Stacking Algorithm and Ensemble Modelling}
 \authora{Frederik Schreck}
 \authorb{}
 \authorc{}
@@ -62,7 +64,7 @@ Humboldt--Universität zu Berlin \\}
 \frametitle{Motivation - The wisdom of the crowd}
 \begin{itemize}
 \item The aggregation of individual guesses	 in groups is often superior to individual guesses - even to experts
-\item BUT: Only fulfilled under certain criteria %\cite{Surowiecki:2005:WC:1095645}:
+\item BUT: Only fulfilled under certain criteria \citep{Surowiecki:2005:WC:1095645}
 	\begin{itemize}
 	\item Variation of guesses
 	\item Independence of guesses
@@ -94,7 +96,7 @@ Humboldt--Universität zu Berlin \\}
 
 \begin{enumerate}
 \item Motivation \quad \checkmark
-\item Decision Tree
+\item Background: Decision Tree
 \item Ensemble Learning
 \item Stacking algorithms
 \begin{enumerate}
@@ -205,7 +207,7 @@ Stacking and Ensemble Learning
 \frametitle{Ensemble Learning}
 Which models to combine?
 \begin{itemize}
-\item Effective ensembling builds on diverse and little correlated models %\cite{kuncheva2003measures}
+\item Effective ensembling builds on diverse and little correlated models \citep{kuncheva2003measures}
 \item Best to use strong base learners
 % Research has been shown that ensembling is most effective when base learners already have good predictions.
 % SO, we see the same criteria than I mentioned in the motivation of this presentation! Also clearly the choice of algorithm is important. In the next sections, I will introduce different stacking models in ensemble modelling. But first, for all of you to be able to follow, I want to shortly explain the concept behind Decisions Trees, since Trees are very often chosen ase base learners in ensemble models.
@@ -239,7 +241,7 @@ Which models to combine?
 \frame{
 \frametitle{Bagging (= Bootstrap Aggregating)}
 \begin{itemize}
-\item Proposed by Leo Breiman %\cite{breiman1996bagging}
+\item Proposed by Leo Breiman \citep{breiman1996bagging}
 \item Meta-algorithm, designed to
 \begin{itemize}
 \item improve accuracy of base algorithms
@@ -274,8 +276,8 @@ combine hypotheses
 \frame{
 \frametitle{Random Forest}
 \begin{itemize}
-\item Also proposed by Leo Breiman %\cite{breiman2001random}
-\item Random forests combine bagging with random subspace approach % \cite{ho1998random}
+\item Also proposed by Leo Breiman \citep{breiman2001random}
+\item Random forests combine bagging with random subspace approach \citep{ho1998random}
 \item Random subspace randomly samples features from set of all features for each learner (with replacement)
 \begin{itemize}
 \item Reduces the correlation between estimators
@@ -336,7 +338,7 @@ Random Forest & Single Tree \\
 \frame{
 \frametitle{Boosting}
 \begin{itemize}
-\item Method proposed by Freund \& Shapire %\cite{freund1996experiments}
+\item Method proposed by Freund \& Shapire \citep{freund1996experiments}
 \item Original idea only applies to classification problems
 \item Idea: simple learners are easier to find. Combining many simple learners can produce a powerful learner.
 \item The ensemble first considers only one base learner. Then we iteratively enlarge it by another base learner that aims to correct the error of the current ensemble. 
@@ -369,7 +371,7 @@ $\hat{y}(x)=H_{final}(x)=\frac{1}{M}\sum_{1}^{M}\beta_mh_m(x)$
 \frame{
 \frametitle{Gradient Boosting}
 \begin{itemize}
-\item Developed by Friedman % \cite{friedman2001greedy}
+\item Developed by Friedman \citep{friedman2001greedy}
 \item Extended boosting to regression problems
 \item Shortcomings of current ensemble is identified by gradients instead of weightings of data
 \item In each stage $m$, a new learner improves the current ensemble $H_{m-1}$ and is fitted to $(x_i, y_i - H_{m-1}(x_i)), \forall i \in\{1,2,...,N\}$
@@ -380,8 +382,8 @@ $\hat{y}(x)=H_{final}(x)=\frac{1}{M}\sum_{1}^{M}\beta_mh_m(x)$
 \frame{
 \frametitle{Stochastic Gradient Boosting}
 \begin{itemize}
-\item Advancement of Gradient Boosting, again by Friedman % \cite{friedman2002stochastic}
-\item Takes ideas from Bagging: 
+\item Advancement of Gradient Boosting, again by Friedman \citep{friedman2002stochastic}
+\item Utilizes ideas from Bagging: 
 \begin{itemize}
 \item Using trees as base learners
 \item Fit trees to negative gradient of random sample of dataset
@@ -443,8 +445,115 @@ Random Forest & Single Tree & Gradient Boosting\\
 
 \frame{
 \frametitle{Stacked Generalization}
-
+\begin{itemize}
+\item Heterogeneous ensemble model % since different prediction methods are used
+\item Second level model: Combines predictions of different classifiers % So first we run those, then we seek to combine them by some technique
+\item Multistep-Approach: 
+\begin{enumerate}
+\item Compare predictive accuracy of individual classifiers
+\item Select the best individual classifier
+\item Iteratively add one more classifier and combine the predictions, e.g. by averaging
+\item Stop when predictive accuracy of the ensemble does not increase anymore
+% base classifiers can be selected multiple times here (equals a weighting scheme)
+\end{enumerate}
+\end{itemize}
 }
+
+\frame{
+\frametitle{The Multistep-Approach}
+An example:
+\begin{table}
+\tiny
+\centering
+\begin{tabular}{|p{.2\textwidth}|p{.1\textwidth}|p{0.1\textwidth}|p{0.1\textwidth}|p{0.1\textwidth}|}
+\hline
+Iteration & y & $\hat{y}_1$ & $\hat{y}_2$ & $\hat{y}_3$\\
+\hline
+ 	1 & 0 & 0.53 & 0.17 & 0.07 \\ \cline{2-5}
+	  & 0 & 0.62 & 0.61 & 0.95 \\ \cline{2-5}
+	  & 1 & 0.76 & 0.41 & 0.31 \\ \cline{2-5}
+\hline \hline
+	Brier Score & & \textbf{0,24} & 0.25 & 0.46 \\ \cline{2-5}
+\hline
+\end{tabular}
+\end{table}
+\begin{table}
+\tiny
+\centering
+\begin{tabular}{|p{.2\textwidth}|p{.1\textwidth}|p{0.1\textwidth}|p{0.1\textwidth}|p{0.1\textwidth}|}
+\hline
+Iteration & y & $\overline{(\hat{y}_1,\hat{y}_1)}$ & $\overline{(\hat{y}_1,\hat{y}_2)}$ & $\overline{(\hat{y}_1,\hat{y}_3)}$\\
+\hline
+ 	2 & 0 & 0.53 & 0.35 & 0.30 \\ \cline{2-5}
+	  & 0 & 0.62 & 0.62 & 0.79 \\ \cline{2-5}
+	  & 1 & 0.76 & 0.59 & 0.54 \\ \cline{2-5}
+\hline \hline
+	Brier Score & & 0.24 & \textbf{0.22} & 0.31 \\ \cline{2-5}
+\hline
+\end{tabular}
+\end{table}
+\begin{table}
+\tiny
+\centering
+\begin{tabular}{|p{.2\textwidth}|p{.1\textwidth}|p{0.1\textwidth}|p{0.1\textwidth}|p{0.1\textwidth}|}
+\hline
+Iteration & y & $\overline{(\hat{y}_1,\hat{y}_2,\hat{y}_1)}$ & $\overline{(\hat{y}_1,\hat{y}_2,\hat{y}_2)}$ & $\overline{(\hat{y}_1,\hat{y}_2,\hat{y}_3)}$\\
+\hline
+ 	2 & 0 & 0.41 & 0.29 & 0.26 \\ \cline{2-5}
+	  & 0 & 0.62 & 0.61 & 0.73 \\ \cline{2-5}
+	  & 1 & 0.64 & 0.53 & 0.49 \\ \cline{2-5}
+\hline \hline
+	Brier Score & & \textbf{0.225} & 0.228 & 0.280 \\ \cline{2-5}
+\hline
+\end{tabular}
+\end{table}
+}
+
+
+\frame{
+\frametitle{Stacked Generalization}
+\begin{itemize}
+\item Most important: Diversity of first-stage models! % Idea behind that is, that the different models are good in explaining part of the structure in the data. Combining them will then be able to explain a larger part of the structure in the data.
+\item Diversity can be enhanced by using
+\begin{itemize}
+\item different algorithms
+\item different parameter settings
+\item different feature subsets
+\item different training sets
+\end{itemize}
+\item Overfitting problem. Can be evaded by % due to the fact that the first stage learners all predict the same, we have typically high multikollinearity
+\begin{itemize}
+\item using cross-validation in second-stage model training
+\item using regularization
+\item using a combiner algorithm that is not sensible to multicollinearity, like Regularized Logistic Regression, Random Forest or hill-climbing methods.
+\end{itemize}
+\end{itemize}
+}
+
+
+\frame{
+\frametitle{Stacked Generalization}
+\begin{table}
+\small
+\centering
+\begin{tabular}{p{.45\textwidth}|p{0.45\textwidth}}
+Advantages & Disadvantages\\
+\hline
+\begin{itemize}
+\item[$+$] often 
+ high predictive accuracy and robustness (most successful approach in data science competitions on \textit{kaggle})
+\item[$+$] scalable, especially parallelizable
+\end{itemize}
+&
+\begin{itemize}
+\item[$-$] complex to implement
+\item[$-$] high amount of computational resources needed	
+\item[$-$] different (!) first-stage models must be built
+\end{itemize}
+\end{tabular}
+\end{table}
+}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Potentials and Problems of Ensemble Learning}
@@ -469,11 +578,8 @@ Potentials & Problems\\
 \hline
 \begin{itemize}
 \item[$+$] currently best predictive methods available
-\item[$+$] ensembling decreases variance and bias
+\item[$+$] ensembling can decrease variance and bias
 \item[$+$] often scalable
-\item[$+$] 
-\item[$+$] 
-\item[$+$] 
 \end{itemize}
 &
 \begin{itemize}
@@ -487,23 +593,27 @@ Potentials & Problems\\
 \end{table}
 }
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{My Dataset}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \frame{
-\frametitle{Current research}
-\begin{itemize}
-\item Scalability
-\item Evolving statistical properties %\cite ATHEY
-\item ?Out of the black box %\cite???
-\end{itemize}
+\frametitle{The German Credit Dataset}
+...
 }
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Sources}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\frame{
-\frametitle{Sources}
+\frame[allowframebreaks]{
+\frametitle{References}
+\begingroup
+\renewcommand{\section}[2]{}%
 \bibliographystyle{apa}
 \bibliography{library}
+\endgroup
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

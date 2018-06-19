@@ -69,22 +69,33 @@
 \headcommand {\sectionentry {9}{Stacked Generalization}{2}{Stacked Generalization}{0}}
 \headcommand {\slideentry {9}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
-\headcommand {\beamer@sectionpages {2}{1}}
-\headcommand {\beamer@subsectionpages {2}{1}}
-\headcommand {\sectionentry {10}{Potentials and Problems of Ensemble Learning}{2}{Potentials and Problems of Ensemble Learning}{0}}
+\headcommand {\slideentry {9}{0}{2}{2/2}{}{0}}
+\headcommand {\beamer@framepages {2}{2}}
+\headcommand {\slideentry {9}{0}{3}{3/3}{}{0}}
+\headcommand {\beamer@framepages {3}{3}}
+\headcommand {\slideentry {9}{0}{4}{4/4}{}{0}}
+\headcommand {\beamer@framepages {4}{4}}
+\headcommand {\beamer@sectionpages {2}{4}}
+\headcommand {\beamer@subsectionpages {2}{4}}
+\headcommand {\sectionentry {10}{Potentials and Problems of Ensemble Learning}{5}{Potentials and Problems of Ensemble Learning}{0}}
 \headcommand {\slideentry {10}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
 \headcommand {\slideentry {10}{0}{2}{2/2}{}{0}}
 \headcommand {\beamer@framepages {2}{2}}
-\headcommand {\slideentry {10}{0}{3}{3/3}{}{0}}
-\headcommand {\beamer@framepages {3}{3}}
-\headcommand {\beamer@sectionpages {2}{3}}
-\headcommand {\beamer@subsectionpages {2}{3}}
-\headcommand {\sectionentry {11}{Sources}{4}{Sources}{0}}
+\headcommand {\beamer@sectionpages {5}{2}}
+\headcommand {\beamer@subsectionpages {5}{2}}
+\headcommand {\sectionentry {11}{My Dataset}{3}{My Dataset}{0}}
 \headcommand {\slideentry {11}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
-\headcommand {\beamer@partpages {1}{1}}
-\headcommand {\beamer@subsectionpages {4}{1}}
-\headcommand {\beamer@sectionpages {4}{1}}
-\headcommand {\beamer@documentpages {1}}
-\headcommand {\gdef \inserttotalframenumber {26}}
+\headcommand {\beamer@sectionpages {3}{1}}
+\headcommand {\beamer@subsectionpages {3}{1}}
+\headcommand {\sectionentry {12}{Sources}{2}{Sources}{0}}
+\headcommand {\slideentry {12}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\slideentry {12}{0}{1}{1/2}{}{0}}
+\headcommand {\beamer@framepages {1}{2}}
+\headcommand {\beamer@partpages {1}{2}}
+\headcommand {\beamer@subsectionpages {2}{2}}
+\headcommand {\beamer@sectionpages {2}{2}}
+\headcommand {\beamer@documentpages {2}}
+\headcommand {\gdef \inserttotalframenumber {30}}

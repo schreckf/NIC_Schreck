@@ -143,6 +143,12 @@ Humboldt--Universität zu Berlin \\}
 IG_n = I_n - p_{n_1} * I(n_1) - p_{n_2} * I(n_2),
 \end{flalign}
 for node $n$ with branching nodes $n_1$ and $n_2$, and $p_{n_i}$ as the fraction of cases in branching node $n_i$\\
+\end{itemize}
+}
+
+\frame{
+\frametitle{Decision Tree for classification}
+\begin{itemize}
 \item How to measure impurity? Choices of splitting criteria:
 \begin{flalign}
 &\text{Entropy:} I(n) = -\sum_{j}^{J} p(c_j|n) * \log_{2}(p(c_j|n))\\
@@ -249,10 +255,12 @@ Which models to combine?
 
 \frame{
 \frametitle{Bagging algorithm}
+Suppose we have training data $\{(x_1,y_1),...,(x_N,y_N)\}$
+\small
 \rule{10cm}{0.05cm}\\
 for base learner $m$ in $\{1,2,...,M\}$\\
-\hspace{1cm}uniformly draw sample $D_m$ with size $N$ from dataset $D$ \\\hspace{1cm}(with replacement)\\
-\hspace{1cm}build model $T_m$ on dataset $D_m$\\
+\hspace{1cm}uniformly draw sample $D_m$ from dataset $D$ (with repl.)\\
+\hspace{1cm}build model $T_m$ on dataset $D_m$ to obtain hypothesis $h_m(x)$\\
 combine hypotheses 
 
 \rule{10cm}{0.05cm}\\
@@ -280,11 +288,13 @@ combine hypotheses
 
 \frame{
 \frametitle{Random Forest algorithm for classification}
+Suppose we have training data $\{(x_1,y_1),...,(x_N,y_N)\}$
+\small
 \rule{10cm}{0.05cm}\\
 for base learner $m$ in $\{1,2,...,M\}$\\
-\hspace{1cm}uniformly draw sample $k_m$ of size $L$ from features $\{1,2,...,K\}$ \\\hspace{1cm}(with replacement)\\
-\hspace{1cm}uniformly draw sample $D_m$ with size $N$ from dataset $D$ \\\hspace{1cm}(with replacement)\\
-\hspace{1cm}build model $T_{m}$ on dataset $D_m$ with feature set $k_m$ \\
+\hspace{1cm}uniformly draw sample $k_m$ of size $L$ from features $\{1,2,...,K\}$ \\\hspace{1cm}(with repl.)\\
+\hspace{1cm}uniformly draw sample $D_m$ from dataset $D$ (with repl.)\\
+\hspace{1cm}build model $T_{m}$ on dataset $D_m$ using feature set $k_m$ \\
 $\hat{C}_{rf}^{L,N}(x) = \text{majority vote}\{\hat{T}_{m}\}_{1}^{M}$
 \rule{10cm}{0.05cm}\\
 }
@@ -292,7 +302,7 @@ $\hat{C}_{rf}^{L,N}(x) = \text{majority vote}\{\hat{T}_{m}\}_{1}^{M}$
 
 
 \frame{
-\frametitle{Random Forest algorithm for classification}
+\frametitle{Random Forest}
 Random Forest vs. single Tree\\
 \begin{table}
 \centering
@@ -312,7 +322,7 @@ Random Forest & Single Tree \\
 \item[$+$] computationally simple
 \item[$+$] insights into decision rules
 \item[$+$] easy to tune parameters
-\item[$-$] tend to overfit and have high variance
+\item[$-$] tends to overfit and have high variance
 \end{itemize}
 \end{tabular}
 \end{table}
@@ -325,15 +335,98 @@ Random Forest & Single Tree \\
 
 \frame{
 \frametitle{Boosting}
-
+\begin{itemize}
+\item Method proposed by Freund \& Shapire %\cite{freund1996experiments}
+\item Original idea only applies to classification problems
+\item Idea: simple learners are easier to find. Combining many simple learners can produce a powerful learner.
+\item The ensemble first considers only one base learner. Then we iteratively enlarge it by another base learner that aims to correct the error of the current ensemble. 
+\end{itemize}
 }
+% Draw a two dimensional graph again on the board. And separate datapoints by line of first base learner. Then draw the misclassified dots bigger and the other smaller. Then separate by a line of the second base learner.... In the end combine all lines.
 
+\frame{
+\frametitle{The Adaboost algorithm}
+Suppose we have training data $\{(x_1,y_1),...,(x_N,y_N)\}$,\\
+initialize weightings $d_i^{(1)}=\frac{1}{N}, \forall i \in \{1,...,N\}$
+\small
+\rule{10cm}{0.05cm}\\
+for base learner $m$ in $\{1,2,...,M\}$\\
+\hspace{1cm}train base learner according to weighted data $d^{(m)}$ \\
+\hspace{1cm}and obtain hypothesis $h_m:\textbf{x}\mapsto\{-1,+1\}$\\
+\hspace{1cm}calculate weighted classifier error\\
+\hspace{1cm}$\epsilon_m=\sum_{i=1}^{N}d_i^{m}I(y_i\neq h_t(x_i))$\\
+\hspace{1cm}calculate hypothesis weighting $\beta_m=\frac{1}{2}\log(\frac{1-\epsilon_m}{\epsilon_m})$\\
+\hspace{1cm}update data weighting, e.g. by \\
+\hspace{1cm}$h_m(x_i)=y_i:d_i^{m+1}=d_i^{m}\exp(-\beta_m)$\\
+\hspace{1cm}$h_m(x_i)\neq y_i:d_i^{m+1}=d_i^{m}\exp(\beta_m)$ \\
+$\hat{y}(x)=H_{final}(x)=\frac{1}{M}\sum_{1}^{M}\beta_mh_m(x)$
+\rule{10cm}{0.05cm}\\
+}
+% So the sample distribution/data weightings are different for different base learners.
+% The classifier weights \beta_m depend on which cases are classified correctly and which are classified incorrectly.(this is such a lying s-shaped function-->draw on board)
+% The updated weightings of each case	 depend on how many base classifiers misclassified this case.
 
 \frame{
 \frametitle{Gradient Boosting}
-
+\begin{itemize}
+\item Developed by Friedman % \cite{friedman2001greedy}
+\item Extended boosting to regression problems
+\item Shortcomings of current ensemble is identified by gradients instead of weightings of data
+\item In each stage $m$, a new learner improves the current ensemble $H_{m-1}$ and is fitted to $(x_i, y_i - H_{m-1}(x_i)), \forall i \in\{1,2,...,N\}$
+\end{itemize}
 }
+%Def. Gradient descent: Gradient descent is a first?order optimization algorithm. To find a local minimum of a function using gradient descent, one takes steps proportional to the negative of the gradient (or of the approximate gradient) of the function at the current point
 
+\frame{
+\frametitle{Stochastic Gradient Boosting}
+\begin{itemize}
+\item Advancement of Gradient Boosting, again by Friedman % \cite{friedman2002stochastic}
+\item Takes ideas from Bagging: 
+\begin{itemize}
+\item Using trees as base learners
+\item Fit trees to negative gradient of random sample of dataset
+\item Less prune to overfitting
+\end{itemize}
+\end{itemize}
+}
+% parameters to tune, mainly focus on preventing overfitting. E.g.Ensemble size, tree parameters, shrinkage term, minimum observations per node in tree,...
+
+\frame{
+\frametitle{Gradient Boosting}
+Random Forest vs. single Tree vs. Gradient Boosting\\
+\begin{table}
+\scriptsize
+\centering
+\begin{tabular}{p{.28\textwidth}|p{0.28\textwidth}|p{0.33\textwidth}}
+Random Forest & Single Tree & Gradient Boosting\\
+\hline
+\begin{itemize}
+\item[$-$] higher computational costs %lot of storage memory and time
+\item[$-$] blackbox %but importanceplots
+\item[$+$] easy to tune parameters
+\item[$+$] smaller prediction variance % so better performance
+\item[$+$] scalability
+\item[$-$] many parameter choices to make
+\end{itemize}
+&
+\begin{itemize}
+\item[$+$] computationally simple
+\item[$+$] insights into decision rules
+\item[$+$] easy to tune parameters
+\item[$-$] tends to overfit and have high variance
+\end{itemize}
+&
+\begin{itemize}
+\item[$+$] relatively fast to train
+\item[$+$] insights by feature importance and partial dependence plots
+\item[$+$] one of the best of-the-shelf methods
+\item[$-$] tends to overfit
+\item[$-$] parallelization difficult
+\item[$-$] many tunable parameters
+\end{itemize}
+\end{tabular}
+\end{table}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bayes??}
@@ -361,17 +454,47 @@ Random Forest & Single Tree \\
 \frametitle{Potentials of Ensemble Learning}
 \begin{figure}[htb]
 	\begin{center}
-	\includegraphics[scale=0.27, trim={0cm 1cm 0 0.5cm}]{Figures/bvtradeoff_boosting_bagging.png}
+	\includegraphics[scale=0.26, trim={0cm 1cm 0 0.5cm}]{Figures/bvtradeoff_boosting_bagging.png}
 	\caption{How Gradient Boosting and Random Forest improve performance.}
 	\end{center}
 \end{figure}
 }
 
 \frame{
-\frametitle{Problems of Ensemble Learning}
-
+\frametitle{Potentials and Problems of Ensemble Learning}
+\begin{table}
+\centering
+\begin{tabular}{p{.45\textwidth}|p{0.45\textwidth}}
+Potentials & Problems\\
+\hline
+\begin{itemize}
+\item[$+$] currently best predictive methods available
+\item[$+$] ensembling decreases variance and bias
+\item[$+$] often scalable
+\item[$+$] 
+\item[$+$] 
+\item[$+$] 
+\end{itemize}
+&
+\begin{itemize}
+\item[$-$] needs high computational resources 
+\item[$-$] blackbox problems
+\item[$-$] many parameters to tune
+\item[$-$] lack of proven statistical properties 
+% actually there is much research on that, especially in emerging field "ML in Economics". For example I found a paper (by Athey) that could prove some consistency of a certain kind of causal random forest.
+\end{itemize}
+\end{tabular}
+\end{table}
 }
 
+\frame{
+\frametitle{Current research}
+\begin{itemize}
+\item Scalability
+\item Evolving statistical properties %\cite ATHEY
+\item ?Out of the black box %\cite???
+\end{itemize}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Sources}

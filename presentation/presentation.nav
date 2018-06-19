@@ -22,17 +22,19 @@
 \headcommand {\beamer@framepages {1}{1}}
 \headcommand {\slideentry {4}{0}{2}{2/2}{}{0}}
 \headcommand {\beamer@framepages {2}{2}}
-\headcommand {\beamer@sectionpages {2}{2}}
-\headcommand {\beamer@subsectionpages {2}{2}}
-\headcommand {\sectionentry {5}{Ensemble Learning}{3}{Ensemble Learning}{0}}
+\headcommand {\slideentry {4}{0}{3}{3/3}{}{0}}
+\headcommand {\beamer@framepages {3}{3}}
+\headcommand {\beamer@sectionpages {2}{3}}
+\headcommand {\beamer@subsectionpages {2}{3}}
+\headcommand {\sectionentry {5}{Ensemble Learning}{4}{Ensemble Learning}{0}}
 \headcommand {\slideentry {5}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
 \headcommand {\slideentry {5}{0}{2}{2/2}{}{0}}
 \headcommand {\beamer@framepages {2}{2}}
 \headcommand {\slideentry {5}{0}{3}{3/3}{}{0}}
 \headcommand {\beamer@framepages {3}{3}}
-\headcommand {\beamer@sectionpages {3}{3}}
-\headcommand {\beamer@subsectionpages {3}{3}}
+\headcommand {\beamer@sectionpages {4}{3}}
+\headcommand {\beamer@subsectionpages {4}{3}}
 \headcommand {\sectionentry {6}{Bagging and Random Forest}{4}{Bagging and Random Forest}{0}}
 \headcommand {\slideentry {6}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
@@ -51,13 +53,19 @@
 \headcommand {\beamer@framepages {1}{1}}
 \headcommand {\slideentry {7}{0}{2}{2/2}{}{0}}
 \headcommand {\beamer@framepages {2}{2}}
-\headcommand {\beamer@sectionpages {6}{2}}
-\headcommand {\beamer@subsectionpages {6}{2}}
-\headcommand {\sectionentry {8}{Bayes??}{3}{Bayes??}{0}}
+\headcommand {\slideentry {7}{0}{3}{3/3}{}{0}}
+\headcommand {\beamer@framepages {3}{3}}
+\headcommand {\slideentry {7}{0}{4}{4/4}{}{0}}
+\headcommand {\beamer@framepages {4}{4}}
+\headcommand {\slideentry {7}{0}{5}{5/5}{}{0}}
+\headcommand {\beamer@framepages {5}{5}}
+\headcommand {\beamer@sectionpages {6}{5}}
+\headcommand {\beamer@subsectionpages {6}{5}}
+\headcommand {\sectionentry {8}{Bayes??}{6}{Bayes??}{0}}
 \headcommand {\slideentry {8}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
-\headcommand {\beamer@sectionpages {3}{1}}
-\headcommand {\beamer@subsectionpages {3}{1}}
+\headcommand {\beamer@sectionpages {6}{1}}
+\headcommand {\beamer@subsectionpages {6}{1}}
 \headcommand {\sectionentry {9}{Stacked Generalization}{2}{Stacked Generalization}{0}}
 \headcommand {\slideentry {9}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
@@ -68,13 +76,15 @@
 \headcommand {\beamer@framepages {1}{1}}
 \headcommand {\slideentry {10}{0}{2}{2/2}{}{0}}
 \headcommand {\beamer@framepages {2}{2}}
-\headcommand {\beamer@sectionpages {2}{2}}
-\headcommand {\beamer@subsectionpages {2}{2}}
-\headcommand {\sectionentry {11}{Sources}{3}{Sources}{0}}
+\headcommand {\slideentry {10}{0}{3}{3/3}{}{0}}
+\headcommand {\beamer@framepages {3}{3}}
+\headcommand {\beamer@sectionpages {2}{3}}
+\headcommand {\beamer@subsectionpages {2}{3}}
+\headcommand {\sectionentry {11}{Sources}{4}{Sources}{0}}
 \headcommand {\slideentry {11}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
 \headcommand {\beamer@partpages {1}{1}}
-\headcommand {\beamer@subsectionpages {3}{1}}
-\headcommand {\beamer@sectionpages {3}{1}}
+\headcommand {\beamer@subsectionpages {4}{1}}
+\headcommand {\beamer@sectionpages {4}{1}}
 \headcommand {\beamer@documentpages {1}}
-\headcommand {\gdef \inserttotalframenumber {21}}
+\headcommand {\gdef \inserttotalframenumber {26}}

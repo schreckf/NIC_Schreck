@@ -28,6 +28,8 @@
 \pgfdeclareimage[height=2cm]{logobig}{hulogo}
 \pgfdeclareimage[height=0.7cm]{logosmall}{Figures/LOB_Logo}
 
+\usepackage{listings} % package to insert code
+
 \renewcommand{\titlescale}{1.0}
 \renewcommand{\titlescale}{1.0}
 \renewcommand{\leftcol}{0.6}
@@ -43,7 +45,7 @@
 
 \institute{Course: Numerical Introductory Course \\
 Lecturer: Prof. Dr. Brenda López Cabrera
-Humboldt--Universität zu Berlin \\}
+Humboldt-University Berlin \\}
 
 \hypersetup{pdfpagemode=FullScreen}
 
@@ -106,7 +108,6 @@ Humboldt--Universität zu Berlin \\}
 \item Stacked Generalization
 \end{enumerate}
 \item Potentials and Problems of Ensemble Learning
-\item The German Credit Dataset
 \item Sources
 \end{enumerate}
 }
@@ -120,7 +121,7 @@ Humboldt--Universität zu Berlin \\}
 \frame{
 \frametitle{Decision Tree}
 \begin{itemize}
-\item Idea: use a set of splitting rules to recursively partition the dataset.
+\item Idea: Use a set of splitting rules to recursively partition the dataset
 \item Classification trees:
 \begin{itemize}
 \item Minimize impurity within nodes
@@ -142,9 +143,9 @@ Humboldt--Universität zu Berlin \\}
 \begin{itemize}
 \item Choice of splitting rule: maximizing information gain (IG) by decreasing node impurity (I) 
 \begin{flalign}
-IG_n = I_n - p_{n_1} * I(n_1) - p_{n_2} * I(n_2),
+IG_n = I(n) - p_{n_1} \times I(n_1) - p_{n_2} \times I(n_2),
 \end{flalign}
-for node $n$ with branching nodes $n_1$ and $n_2$, and $p_{n_i}$ as the fraction of cases in branching node $n_i$\\
+for node $n$ with branching nodes $n_1$ and $n_2$, and $p_{n_i}$ as the fraction of cases in branching node $n_i$, $i\in\{1,2\}$\\
 \end{itemize}
 }
 
@@ -153,11 +154,11 @@ for node $n$ with branching nodes $n_1$ and $n_2$, and $p_{n_i}$ as the fraction
 \begin{itemize}
 \item How to measure impurity? Choices of splitting criteria:
 \begin{flalign}
-&\text{Entropy:} I(n) = -\sum_{j}^{J} p(c_j|n) * \log_{2}(p(c_j|n))\\
-&\text{Gini impurity:} I(n) = 1 - \sum_{j}^{J} p(c_j|n)^2\\
-&\text{Misclassification impurity:} I(n) = 1 - \max_{{j}}	p(c_j),
+&\text{Entropy: } I(n) = -\sum_{j}^{J} p(c_j|n) * \log_{2}(p(c_j|n))\\
+&\text{Gini impurity: } I(n) = 1 - \sum_{j}^{J} p(c_j|n)^2\\
+&\text{Misclassification impurity: } I(n) = 1 - \max_{{j}}	p(c_j),
 \end{flalign}
-for classes $c_j, j \in J = \{1,2,...\}$
+for node $n$ and classes $c_j, j \in \{1,2,...,J\}$
 \end{itemize}
 }
 
@@ -166,7 +167,7 @@ for classes $c_j, j \in J = \{1,2,...\}$
 \begin{itemize}
 \item Choice of stopping rule:\\
 A fully grown tree has pure leaf nodes and may overfit the data\\
-However, a too small tree may not capture all relevant structure of the data
+However, a small tree may not capture all relevant structure of the data
 \begin{itemize}
 \item Pre-pruning
 \item Post-pruning
@@ -213,7 +214,7 @@ Which models to combine?
 % SO, we see the same criteria than I mentioned in the motivation of this presentation! Also clearly the choice of algorithm is important. In the next sections, I will introduce different stacking models in ensemble modelling. But first, for all of you to be able to follow, I want to shortly explain the concept behind Decisions Trees, since Trees are very often chosen ase base learners in ensemble models.
 \end{itemize}
 \vspace{0.5cm}
-Similar criteria as mentioned in the Motivation!
+Compare with the criteria mentioned in the Motivation!
 }
 
 \frame{
@@ -226,9 +227,9 @@ Which models to combine?
 	\end{center}
 \end{figure}
 \begin{itemize}
-\item Combining complex classifiers may reduce variance.
+\item Combining complex classifiers may reduce variance
 % e.g. averaging over many estimates gives more robust estimation
-\item Combining simple classifiers may reduce bias.
+\item Combining simple classifiers may reduce bias
 % combining simple rules gives eventually a complex rule
 \end{itemize}
 }
@@ -260,11 +261,12 @@ Which models to combine?
 Suppose we have training data $\{(x_1,y_1),...,(x_N,y_N)\}$
 \small
 \rule{10cm}{0.05cm}\\
-for base learner $m$ in $\{1,2,...,M\}$\\
-\hspace{1cm}uniformly draw sample $D_m$ from dataset $D$ (with repl.)\\
-\hspace{1cm}build model $T_m$ on dataset $D_m$ to obtain hypothesis $h_m(x)$\\
-combine hypotheses 
-
+\begin{enumerate}
+\item[1] for base learner $m$ in $\{1,2,...,M\}$
+\item[2] \hspace{1cm} uniformly draw sample $D_m$ from dataset $D$ (with repl.)
+\item[3] \hspace{1cm} build model $T_m$ on dataset $D_m$ to obtain hypothesis $h_m(x)$
+\item[4] combine hypotheses 
+\end{enumerate}
 \rule{10cm}{0.05cm}\\
 \begin{itemize}
 \item Combining by averaging in regression problems
@@ -272,13 +274,12 @@ combine hypotheses
 \end{itemize}
 }
 
-
 \frame{
 \frametitle{Random Forest}
 \begin{itemize}
 \item Also proposed by Leo Breiman \citep{breiman2001random}
 \item Random forests combine bagging with random subspace approach \citep{ho1998random}
-\item Random subspace randomly samples features from set of all features for each learner (with replacement)
+\item Random subspace approach randomly samples features from set of all features for each learner (with replacement)
 \begin{itemize}
 \item Reduces the correlation between estimators
 \item Thus decreases variance in the ensemble learner
@@ -293,11 +294,13 @@ combine hypotheses
 Suppose we have training data $\{(x_1,y_1),...,(x_N,y_N)\}$
 \small
 \rule{10cm}{0.05cm}\\
-for base learner $m$ in $\{1,2,...,M\}$\\
-\hspace{1cm}uniformly draw sample $k_m$ of size $L$ from features $\{1,2,...,K\}$ \\\hspace{1cm}(with repl.)\\
-\hspace{1cm}uniformly draw sample $D_m$ from dataset $D$ (with repl.)\\
-\hspace{1cm}build model $T_{m}$ on dataset $D_m$ using feature set $k_m$ \\
-$\hat{C}_{rf}^{L,N}(x) = \text{majority vote}\{\hat{T}_{m}\}_{1}^{M}$
+\begin{enumerate}
+\item[1]for base learner $m$ in $\{1,2,...,M\}$
+\item[2]\hspace{1cm}uniformly draw sample $k_m$ of size $L$ from features $\{1,2,...,K\}$ \\\hspace{1cm}(with repl.)
+\item[3]\hspace{1cm}uniformly draw sample $D_m$ from dataset $D$ (with repl.)
+\item[4]\hspace{1cm}build model $T_{m}$ on dataset $D_m$ using feature set $k_m$ 
+\item[5]$\hat{C}_{rf}^{L,N}(x) = \text{majority vote}\{\hat{T}_{m}\}_{1}^{M}$
+\end{enumerate}
 \rule{10cm}{0.05cm}\\
 }
 % which are the tunable parameters: number of trees (the more the better, but computational costs increase), number of features for each tree, bootstrap sample sizes, number of branches for trees OR other sort of pruning...
@@ -340,8 +343,8 @@ Random Forest & Single Tree \\
 \begin{itemize}
 \item Method proposed by Freund \& Shapire \citep{freund1996experiments}
 \item Original idea only applies to classification problems
-\item Idea: simple learners are easier to find. Combining many simple learners can produce a powerful learner.
-\item The ensemble first considers only one base learner. Then we iteratively enlarge it by another base learner that aims to correct the error of the current ensemble. 
+\item Idea: Simple learners are easier to find. Combining many simple learners can produce a powerful learner
+\item The ensemble first considers only one base learner. Then we iteratively enlarge it by another base learner that aims to correct the error of the current ensemble
 \end{itemize}
 }
 % Draw a two dimensional graph again on the board. And separate datapoints by line of first base learner. Then draw the misclassified dots bigger and the other smaller. Then separate by a line of the second base learner.... In the end combine all lines.
@@ -350,19 +353,21 @@ Random Forest & Single Tree \\
 \frametitle{The Adaboost algorithm}
 Suppose we have training data $\{(x_1,y_1),...,(x_N,y_N)\}$,\\
 initialize weightings $d_i^{(1)}=\frac{1}{N}, \forall i \in \{1,...,N\}$
-\small
+\scriptsize
 \rule{10cm}{0.05cm}\\
-for base learner $m$ in $\{1,2,...,M\}$\\
-\hspace{1cm}train base learner according to weighted data $d^{(m)}$ \\
-\hspace{1cm}and obtain hypothesis $h_m:\textbf{x}\mapsto\{-1,+1\}$\\
-\hspace{1cm}calculate weighted classifier error\\
-\hspace{1cm}$\epsilon_m=\sum_{i=1}^{N}d_i^{m}I(y_i\neq h_t(x_i))$\\
-\hspace{1cm}calculate hypothesis weighting $\beta_m=\frac{1}{2}\log(\frac{1-\epsilon_m}{\epsilon_m})$\\
-\hspace{1cm}update data weighting, e.g. by \\
+\begin{enumerate}
+\item[1]for base learner $m$ in $\{1,2,...,M\}$
+\item[2]\hspace{1cm}train base learner according to weighted data $d^{(m)}$\\
+\hspace{1cm}and obtain hypothesis $h_m:\textbf{x}\mapsto\{-1,+1\}$
+\item[3]\hspace{1cm}calculate weighted classifier error\\
+\hspace{1cm}$\epsilon_m=\sum_{i=1}^{N}d_i^{m}I(y_i\neq h_t(x_i))$
+\item[4]\hspace{1cm}calculate hypothesis weighting $\beta_m=\frac{1}{2}\log(\frac{1-\epsilon_m}{\epsilon_m})$
+\item[5]\hspace{1cm}update data weighting, e.g. by\\
 \hspace{1cm}$h_m(x_i)=y_i:d_i^{m+1}=d_i^{m}\exp(-\beta_m)$\\
-\hspace{1cm}$h_m(x_i)\neq y_i:d_i^{m+1}=d_i^{m}\exp(\beta_m)$ \\
-$\hat{y}(x)=H_{final}(x)=\frac{1}{M}\sum_{1}^{M}\beta_mh_m(x)$
-\rule{10cm}{0.05cm}\\
+\hspace{1cm}$h_m(x_i)\neq y_i:d_i^{m+1}=d_i^{m}\exp(\beta_m)$ 
+\item[6]$\hat{y}(x)=H_{final}(x)=\frac{1}{M}\sum_{1}^{M}\beta_mh_m(x)$
+\end{enumerate}
+\rule{10cm}{0.05cm}
 }
 % So the sample distribution/data weightings are different for different base learners.
 % The classifier weights \beta_m depend on which cases are classified correctly and which are classified incorrectly.(this is such a lying s-shaped function-->draw on board)
@@ -372,9 +377,9 @@ $\hat{y}(x)=H_{final}(x)=\frac{1}{M}\sum_{1}^{M}\beta_mh_m(x)$
 \frametitle{Gradient Boosting}
 \begin{itemize}
 \item Developed by Friedman \citep{friedman2001greedy}
-\item Extended boosting to regression problems
+\item Extended boosting to regression and other problem types
 \item Shortcomings of current ensemble is identified by gradients instead of weightings of data
-\item In each stage $m$, a new learner improves the current ensemble $H_{m-1}$ and is fitted to $(x_i, y_i - H_{m-1}(x_i)), \forall i \in\{1,2,...,N\}$
+\item In each stage $m\in \{1,2,...,M\}$, a new learner improves the current ensemble $H_{m-1}$ and is fitted to $(x_i, y_i - H_{m-1}(x_i)), \forall i \in\{1,2,...,N\}$
 \end{itemize}
 }
 %Def. Gradient descent: Gradient descent is a first?order optimization algorithm. To find a local minimum of a function using gradient descent, one takes steps proportional to the negative of the gradient (or of the approximate gradient) of the function at the current point
@@ -387,8 +392,8 @@ $\hat{y}(x)=H_{final}(x)=\frac{1}{M}\sum_{1}^{M}\beta_mh_m(x)$
 \begin{itemize}
 \item Using trees as base learners
 \item Fit trees to negative gradient of random sample of dataset
-\item Less prune to overfitting
 \end{itemize}
+\item Less prune to overfitting
 \end{itemize}
 }
 % parameters to tune, mainly focus on preventing overfitting. E.g.Ensemble size, tree parameters, shrinkage term, minimum observations per node in tree,...
@@ -447,7 +452,7 @@ Random Forest & Single Tree & Gradient Boosting\\
 \frametitle{Stacked Generalization}
 \begin{itemize}
 \item Heterogeneous ensemble model % since different prediction methods are used
-\item Second level model: Combines predictions of different classifiers % So first we run those, then we seek to combine them by some technique
+\item Second stage model: Combines predictions of different classifiers % So first we run those, then we seek to combine them by some technique
 \item Multistep-Approach: 
 \begin{enumerate}
 \item Compare predictive accuracy of individual classifiers
@@ -473,7 +478,7 @@ Iteration & y & $\hat{y}_1$ & $\hat{y}_2$ & $\hat{y}_3$\\
 	  & 0 & 0.62 & 0.61 & 0.95 \\ \cline{2-5}
 	  & 1 & 0.76 & 0.41 & 0.31 \\ \cline{2-5}
 \hline \hline
-	Brier Score & & \textbf{0,24} & 0.25 & 0.46 \\ \cline{2-5}
+	Brier Score: & & \textbf{0,24} & 0.25 & 0.46 \\ \cline{2-5}
 \hline
 \end{tabular}
 \end{table}
@@ -488,7 +493,7 @@ Iteration & y & $\overline{(\hat{y}_1,\hat{y}_1)}$ & $\overline{(\hat{y}_1,\hat{
 	  & 0 & 0.62 & 0.62 & 0.79 \\ \cline{2-5}
 	  & 1 & 0.76 & 0.59 & 0.54 \\ \cline{2-5}
 \hline \hline
-	Brier Score & & 0.24 & \textbf{0.22} & 0.31 \\ \cline{2-5}
+	Brier Score: & & 0.24 & \textbf{0.22} & 0.31 \\ \cline{2-5}
 \hline
 \end{tabular}
 \end{table}
@@ -503,7 +508,7 @@ Iteration & y & $\overline{(\hat{y}_1,\hat{y}_2,\hat{y}_1)}$ & $\overline{(\hat{
 	  & 0 & 0.62 & 0.61 & 0.73 \\ \cline{2-5}
 	  & 1 & 0.64 & 0.53 & 0.49 \\ \cline{2-5}
 \hline \hline
-	Brier Score & & \textbf{0.225} & 0.228 & 0.280 \\ \cline{2-5}
+	Brier Score: & & \textbf{0.225} & 0.228 & 0.280 \\ \cline{2-5}
 \hline
 \end{tabular}
 \end{table}
@@ -592,16 +597,6 @@ Potentials & Problems\\
 \end{tabular}
 \end{table}
 }
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{My Dataset}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\frame{
-\frametitle{The German Credit Dataset}
-...
-}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Sources}

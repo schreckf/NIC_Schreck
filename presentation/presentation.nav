@@ -84,18 +84,13 @@
 \headcommand {\beamer@framepages {2}{2}}
 \headcommand {\beamer@sectionpages {5}{2}}
 \headcommand {\beamer@subsectionpages {5}{2}}
-\headcommand {\sectionentry {11}{My Dataset}{3}{My Dataset}{0}}
+\headcommand {\sectionentry {11}{Sources}{3}{Sources}{0}}
 \headcommand {\slideentry {11}{0}{1}{1/1}{}{0}}
 \headcommand {\beamer@framepages {1}{1}}
-\headcommand {\beamer@sectionpages {3}{1}}
-\headcommand {\beamer@subsectionpages {3}{1}}
-\headcommand {\sectionentry {12}{Sources}{2}{Sources}{0}}
-\headcommand {\slideentry {12}{0}{1}{1/1}{}{0}}
-\headcommand {\beamer@framepages {1}{1}}
-\headcommand {\slideentry {12}{0}{1}{1/2}{}{0}}
+\headcommand {\slideentry {11}{0}{1}{1/2}{}{0}}
 \headcommand {\beamer@framepages {1}{2}}
 \headcommand {\beamer@partpages {1}{2}}
-\headcommand {\beamer@subsectionpages {2}{2}}
-\headcommand {\beamer@sectionpages {2}{2}}
+\headcommand {\beamer@subsectionpages {3}{2}}
+\headcommand {\beamer@sectionpages {3}{2}}
 \headcommand {\beamer@documentpages {2}}
-\headcommand {\gdef \inserttotalframenumber {30}}
+\headcommand {\gdef \inserttotalframenumber {29}}

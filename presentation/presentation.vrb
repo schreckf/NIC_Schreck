@@ -1,61 +1,18 @@
+\frametitle{R-Code Minimalbeispiel}
+\begin{lstlisting}
+#Zeitintervall und Feinheit
+T <- 1; N <- 100
 
+#Zeitschritte
+Delta <- T/N
 
-\frame{
-\frametitle{Random Forest}
-blalala
-}
+#Zeit-Achse
+t <- seq(0,T,length.out=N+1)
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Boosting and Gradient Boosting}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#Simulation und Aufsummierung der Zuwaechse
+S <- cumsum(sample(x=c(-1,1),size=n,replace=T) * sqrt(Delta))
 
-\frame{
-\frametitle{Boosting}
-blalala
-}
+W <- c(0,S)                  #0 als ersten Wert.
 
-
-\frame{
-\frametitle{Gradient Boosting}
-blalala
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Bayes??}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\frame{
-\frametitle{Bayes??}
-blalala
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Stacked Generalization}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\frame{
-\frametitle{Stacked Generalization}
-blalala
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Potentials and Problems of Ensemble Learning}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\frame{
-\frametitle{Potentials and Problems of Ensemble Learning}
-blalala
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Sources}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\frame{
-\frametitle{Sources}
-\bibliographystyle{apa}
-\bibliography{library}
-}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\end{document}
+plot(t,W, type="l")          #Linienplot
+\end{lstlisting}

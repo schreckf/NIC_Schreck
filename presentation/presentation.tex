@@ -200,6 +200,8 @@ Stacking and Ensemble Learning
 % There have been some applications in unsupervised models, like for example "consensus clustering" but in general ensembling focuses on supervised learning.
 \item Very flexible method
 % The ensembling hypothesis, however, is not necessarily contained within the hypothesis space of the models from which it is built.Ensembles can be shown to have more flexibility in the functions they can represent.
+
+% Notes: Models - Learners, predictions - hypotheses,...
 \end{itemize}
 }
 
@@ -211,7 +213,8 @@ Which models to combine?
 \item Effective ensembling builds on diverse and little correlated models \citep{kuncheva2003measures}
 \item Best to use strong base learners
 % Research has been shown that ensembling is most effective when base learners already have good predictions.
-% SO, we see the same criteria than I mentioned in the motivation of this presentation! Also clearly the choice of algorithm is important. In the next sections, I will introduce different stacking models in ensemble modelling. But first, for all of you to be able to follow, I want to shortly explain the concept behind Decisions Trees, since Trees are very often chosen ase base learners in ensemble models.
+\item Choice of algorithm decisive
+% SO, we see the same criteria than I mentioned in the motivation of this presentation! Also clearly the choice of algorithm is important. In the next sections, I will introduce different stacking models in ensemble modelling. 
 \end{itemize}
 \vspace{0.5cm}
 Compare with the criteria mentioned in the Motivation!
@@ -234,6 +237,19 @@ Which models to combine?
 \end{itemize}
 }
 
+
+\frame{
+\frametitle{Bias-Variance-Trade-Off for Decision Trees}
+\begin{figure}[htb]
+	\begin{center}
+	\includegraphics[scale=0.26, trim={0cm 1cm 0 0.5cm}]{Figures/bvtradeoff_tree.png}
+	\caption{The bias-variance-trade-off for decision trees.}
+	\end{center}
+\end{figure}
+\begin{itemize}
+\item So how do we obtain a good model?
+\end{itemize}
+}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bagging and Random Forest}
@@ -317,10 +333,11 @@ Random Forest & Single Tree \\
 \begin{itemize}
 \item[$-$] higher computational costs %lot of storage memory and time
 \item[$-$] blackbox %but importanceplots
+\item[$-$] many parameter choices to make
 \item[$+$] easy to tune parameters
 \item[$+$] smaller prediction variance % so better performance
 \item[$+$] scalability
-\item[$-$] many parameter choices to make
+
 \end{itemize}
 &
 \begin{itemize}

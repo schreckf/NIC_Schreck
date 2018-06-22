@@ -26,7 +26,7 @@
 \usepackage[square,sort]{natbib}
 
 \pgfdeclareimage[height=2cm]{logobig}{hulogo}
-\pgfdeclareimage[height=0.7cm]{logosmall}{Figures/LOB_Logo}
+\pgfdeclareimage[height=0.7cm]{logosmall}{Figures/ensemble.png}
 
 \usepackage{listings} % package to insert code
 
@@ -34,7 +34,7 @@
 \renewcommand{\titlescale}{1.0}
 \renewcommand{\leftcol}{0.6}
 
-\title[Stacking Algorithm for Ensemble Modelling]{Stacking Algorithm and Ensemble Modelling}
+\title[Stacking Algorithm for Ensemble Modelling]{Stacking Algorithm for Ensemble Modelling}
 \authora{Frederik Schreck}
 \authorb{}
 \authorc{}
@@ -100,11 +100,10 @@ Humboldt-University Berlin \\}
 \item Motivation \quad \checkmark
 \item Background: Decision Tree
 \item Ensemble Learning
-\item Stacking algorithms
+\item Stacking Algorithms and Ensemble Modelling
 \begin{enumerate}
 \item Bagging and Random Forest
 \item Boosting and Gradient Boosting
-\item Bayes??
 \item Stacked Generalization
 \end{enumerate}
 \item Potentials and Problems of Ensemble Learning
@@ -155,8 +154,11 @@ for node $n$ with branching nodes $n_1$ and $n_2$, and $p_{n_i}$ as the fraction
 \item How to measure impurity? Choices of splitting criteria:
 \begin{flalign}
 &\text{Entropy: } I(n) = -\sum_{j}^{J} p(c_j|n) * \log_{2}(p(c_j|n))\\
+% some sort of average rate in which information is lost in node n.
 &\text{Gini impurity: } I(n) = 1 - \sum_{j}^{J} p(c_j|n)^2\\
+%Expected error rate at node N if the category label is selected randomly from the class distribution present at N. MEANS: Prob of miscklassifyoing a randomly chosen element in node N.
 &\text{Misclassification impurity: } I(n) = 1 - \max_{{j}}	p(c_j),
+%Minimum probability that a training pattern will be misclassified at node n
 \end{flalign}
 for node $n$ and classes $c_j, j \in \{1,2,...,J\}$
 \end{itemize}
@@ -166,7 +168,7 @@ for node $n$ and classes $c_j, j \in \{1,2,...,J\}$
 \frametitle{Decision Tree for classification}
 \begin{itemize}
 \item Choice of stopping rule:\\
-A fully grown tree has pure leaf nodes and may overfit the data\\
+A fully grown tree has pure leaf nodes and may overfit the data.
 However, a small tree may not capture all relevant structure of the data
 \begin{itemize}
 \item Pre-pruning
@@ -211,7 +213,7 @@ Stacking and Ensemble Learning
 Which models to combine?
 \begin{itemize}
 \item Effective ensembling builds on diverse and little correlated models \citep{kuncheva2003measures}
-\item Best to use strong base learners
+\item Typically best to use strong base learners
 % Research has been shown that ensembling is most effective when base learners already have good predictions.
 \item Choice of algorithm decisive
 % SO, we see the same criteria than I mentioned in the motivation of this presentation! Also clearly the choice of algorithm is important. In the next sections, I will introduce different stacking models in ensemble modelling. 
@@ -238,18 +240,18 @@ Which models to combine?
 }
 
 
-\frame{
-\frametitle{Bias-Variance-Trade-Off for Decision Trees}
-\begin{figure}[htb]
-	\begin{center}
-	\includegraphics[scale=0.26, trim={0cm 1cm 0 0.5cm}]{Figures/bvtradeoff_tree.png}
-	\caption{The bias-variance-trade-off for decision trees.}
-	\end{center}
-\end{figure}
-\begin{itemize}
-\item So how do we obtain a good model?
-\end{itemize}
-}
+%\frame{
+%\frametitle{Bias-Variance-Trade-Off for Decision Trees}
+%\begin{figure}[htb]
+%	\begin{center}
+%	\includegraphics[scale=0.26, trim={0cm 1cm 0 0.5cm}]{Figures/bvtradeoff_tree.png}
+%	\caption{The bias-variance-trade-off for decision trees.}
+%	\end{center}
+%\end{figure}
+%\begin{itemize}
+%\item So how do we obtain a good model?
+%\end{itemize}
+%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Bagging and Random Forest}
@@ -452,14 +454,6 @@ Random Forest & Single Tree & Gradient Boosting\\
 \end{table}
 }
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Bayes??}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\frame{
-\frametitle{Bayes??}
-
-}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Stacked Generalization}

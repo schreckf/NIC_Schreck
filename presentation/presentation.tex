@@ -85,7 +85,7 @@ Humboldt-University Berlin \\}
 % 	Decentralization = 	People are able to specialize and draw their knowledge (?); 
 %	Algorithm = results clearly depend on whether mean or median or s.th. else
 
-% Exactly, this is the motica
+
 
 %%%%%%%%%%%%%
 
@@ -131,10 +131,10 @@ Humboldt-University Berlin \\}
 \end{itemize}
 \end{itemize}
 }
-% Draw two pictures for classification tree: one twodimensional graph (x-axis = age, y-axis = wage; Dependente var = risky customer (YES/NO); draw some dots into graph and separate them by lines while explaining the tree. Second plot is the tree structure.--> Explain how tree is build. And then explain how tree is used for prediction of a new datapoint.)
+	% Draw two pictures for classification tree: one twodimensional graph (x-axis = age, y-axis = wage; Dependente var = risky customer (YES/NO); draw some dots into graph and separate them by lines while explaining the tree. Second plot is the tree structure.--> Explain how tree is build. And then explain how tree is used for prediction of a new datapoint.)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Decision Tree}
+%\section{Decision Tree}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Since I evaluate a classification task in my paper, I will here focus on classification tree (and later stacking models for classification tasks.)
 \frame{
@@ -148,21 +148,21 @@ for node $n$ with branching nodes $n_1$ and $n_2$, and $p_{n_i}$ as the fraction
 \end{itemize}
 }
 
-\frame{
-\frametitle{Decision Tree for classification}
-\begin{itemize}
-\item How to measure impurity? Choices of splitting criteria:
-\begin{flalign}
-&\text{Entropy: } I(n) = -\sum_{j}^{J} p(c_j|n) * \log_{2}(p(c_j|n))\\
-% some sort of average rate in which information is lost in node n.
-&\text{Gini impurity: } I(n) = 1 - \sum_{j}^{J} p(c_j|n)^2\\
-%Expected error rate at node N if the category label is selected randomly from the class distribution present at N. MEANS: Prob of miscklassifyoing a randomly chosen element in node N.
-&\text{Misclassification impurity: } I(n) = 1 - \max_{{j}}	p(c_j),
-%Minimum probability that a training pattern will be misclassified at node n
-\end{flalign}
-for node $n$ and classes $c_j, j \in \{1,2,...,J\}$
-\end{itemize}
-}
+%\frame{
+%\frametitle{Decision Tree for classification}
+%\begin{itemize}
+%\item How to measure impurity? Choices of splitting criteria:
+%\begin{flalign}
+%&\text{Entropy: } I(n) = -\sum_{j}^{J} p(c_j|n) * \log_{2}(p(c_j|n))\\
+%% some sort of average rate in which information is lost in node n.
+%&\text{Gini impurity: } I(n) = 1 - \sum_{j}^{J} p(c_j|n)^2\\
+%%Expected error rate at node N if the category label is selected randomly from the class distribution present at N. MEANS: Prob of miscklassifyoing a %randomly chosen element in node N.
+%&\text{Misclassification impurity: } I(n) = 1 - \max_{{j}}	p(c_j),
+%%Minimum probability that a training pattern will be misclassified at node n
+%\end{flalign}
+%for node $n$ and classes $c_j, j \in \{1,2,...,J\}$
+%\end{itemize}
+%}
 
 \frame{
 \frametitle{Decision Tree for classification}

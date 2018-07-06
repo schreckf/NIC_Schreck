@@ -21,6 +21,9 @@ library("ggplot2")
 library("corrplot")
 library("glmnet")
 library("xtable")
+library("caret")
+library("caretEnsemble")
+library("gbm")
 
 rm(list = ls(all = TRUE))
 graphics.off()
@@ -80,7 +83,7 @@ creditdata$liable_people      <- scale(creditdata$liable_people)
 # Data partitioning into training and testing data
 #------------------------------------------------------------------
 
-set.seed(2610)
+set.seed(2601)
 idx   <- sample(x = NROW(creditdata),
                 size = floor(0.75*NROW(creditdata)), 
                 replace = FALSE)
@@ -105,7 +108,7 @@ files can be accessed directly.'
 
 # Generate empty lists to store the models and their results in
 vars       <- list() # Selected set of features used for each model
-model_lib  <- list() # Models
+model_lib  <- list() # Model library
 yhat       <- list() # Predictions on test dataset
 
 
@@ -114,22 +117,24 @@ source("gb_wrapper.R")
 
 # For replication purposes: gb_wrapper results
 train_wrapper <- mlr::createDummyFeatures(train, target = "customer")
-vars$gb       <- c("customer", "account_status.A13", 
-                   "account_status.A14", "credit_history.A34",
-                   "purpose.A41", "purpose.A43", 
-                   "purpose.A49", "savings.A61",
-                   "savings.A62", "status_sex.A93",
-                   "other_debtors.A103", "housing.A153")       
+vars$gb       <- c("customer", "account_status.A11", 
+                   "account_status.A14", "credit_history.A30",
+                   "credit_history.A34", "purpose.A49", "savings.A63",
+                   "savings.A65", "employment_duration.A75",
+                   "other_debtors.A103", "property.A123",
+                   "installment_plans.A143", "job.A174",
+                   "telephone.A192")       
 
 
 ##### Random forest wrapper #######################################
 source("rf_wrapper.R")
 
 # For replication purposes: rf_wrapper results
-vars$rf      <- c("customer", "account_status", "duration",
-                  "credit_history", "purpose", "amount",
-                  "savings", "other_debtors", "telephone",
-                  "foreign_worker")
+vars$rf      <- c("customer", "account_status", "duration", 
+                  "credit_history", "purpose", "savings",
+                  "employment_duration", "other_debtors",
+                  "residence_duration", "age", "installment_plans",
+                  "housing", "job", "liable_people", "foreign_worker")
 
 
 ##### Stacked Generalization model ################################
@@ -153,40 +158,44 @@ source("dt_wrapper.R")
 
 # For replication purposes: dt_wrapper results
 vars$dt       <- c("customer", "account_status", "credit_history",
-             "savings", "other_debtors" )
+                   "savings", "number_credits")
 
 ##### Stacking: Logit wrapper #####################################
 source("logit_wrapper.R")
 
 # For replication purposes: logit_wrapper results
-vars$logit    <- c("customer", "account_status", "duration", 
-                   "credit_history", "savings", "installment_rate",
-                   "status_sex", "other_debtors", "age",
-                   "number_credits", "liable_people")  
+vars$logit    <- c("customer", "duration", "credit_history",
+                   "purpose", "amount", "installment_rate",
+                   "status_sex", "residence_duration", "age",
+                   "installment_plans", "number_credits",
+                   "liable_people", "telephone", "foreign_worker")  
 
 ##### Stacking: Neural net wrapper ################################
 source("nnet_wrapper.R")
 
 # For replication purposes: nnet_wrapper results
-vars$nnet     <- c("customer", "account_status",
-                   "duration", "liable_people")
+vars$nnet     <- c("customer", "account_status", "credit_history")
 
-##### Stacking: Gradient Boosting wrapper #################
-source("gb_wrapper_stacking.R") #[How to deal with categorical vars??]
+##### Stacking: Gradient Boosting wrapper #########################
+source("gb_wrapper_stacking.R") 
 
 # For replication purposes: gb_wrapper results
-vars$gb2      <- c("customer", "duration", "liable_people",
-                    "account_status.A13", "account_status.A14", 
-                   "savings.A65", "other_debtors.A103", 
-                   "property.A121")      
+vars$gb2      <- c("customer", "account_status.A11", 
+                   "account_status.A14", "credit_history.A34",
+                   "purpose.A41", "savings.A65", 
+                   "employment_duration.A74", "status_sex.A94",
+                   "other_debtors.A103", "installment_plans.A143")      
 
 ##### Stacking: Random forest wrapper #############################
 source("rf_wrapper_stacking.R")
 
 # For replication purposes: rf_wrapper results
-vars$rf       <- c("customer", "account_status", "duration",
-                   "credit_history", "purpose", "amount", "savings",
-                   "other_debtors", "telephone", "foreign_worker")
+vars$rf2      <- c("customer", "account_status", "duration",
+                   "credit_history", "purpose", "savings",
+                   "employment_duration", "other_debtors",
+                   "residence_duration", "age",
+                   "installment_plans", "housing", "job",
+                   "liable_people", "foreign_worker")
 
 
 #------------------------------------------------------------------
@@ -197,13 +206,6 @@ vars$rf       <- c("customer", "account_status", "duration",
 predictions on the test dataset are made. Each model uses the 
 optimal subset of features from  the corresponding wrapper approach.'
 
-# Partitioning the dataset for the Stacking into five equally 
-# sized disjoint sets
-set.seed(2610)
-idx2       <- sample(rep(1:5,each = nrow(train)/5)) 
-train_sets <- lapply(split(1:nrow(train), idx2), 
-                     function(i) creditdata[i,])
-
 ###### Random forest tuning #######################################
 source("rf_model.R")
 
@@ -211,6 +213,15 @@ source("rf_model.R")
 ###### Gradient Boosting tuning ###################################
 source("gb_model.R")
 
+
+###### Stacking: preparation ######################################
+
+# Partitioning the dataset for the Stacking into five equally 
+# sized disjoint sets
+set.seed(2610)
+idx2       <- sample(rep(1:5,each = nrow(train)/5)) 
+train_sets <- lapply(split(1:nrow(train), idx2), 
+                     function(i) creditdata[i,])
 
 ###### Stacking: Decision tree tuning #############################
 source("dt_model.R")
@@ -272,10 +283,12 @@ auc$st1    <- measureAUC(probabilities = yhat$st1$prob.good,
 auc$st2    <- measureAUC(probabilities = yhat$st2$prob.good, 
                       truth = yhat$st2$truth, positive = "1", 
                       negative = "2"); auc$st2
-auc$st3    <- mlr::performance(yhat$st3, 
-                               measures = mlr::auc); auc$st3
-auc$st4    <- mlr::performance(yhat$st4,
-                               measures = mlr::auc); auc$st4
+auc$st3    <- measureAUC(probabilities = yhat$st3[,3], 
+                         truth = yhat$st3[,2], positive = "1", 
+                         negative = "2"); auc$st3
+auc$st4    <- measureAUC(probabilities = yhat$st4[,3], 
+                         truth = yhat$st4[,2], positive = "1", 
+                         negative = "2"); auc$st4
 
 # Accuracy
 acc$rf     <- mlr::performance(yhat$rf, 
@@ -296,34 +309,48 @@ acc$st1    <- measureACC(response = round(yhat$st1$prob.good),
                          truth = yhat$st1$truth); acc$st1
 acc$st2    <- measureACC(response = round(yhat$st2$prob.good), 
                          truth = yhat$st2$truth); acc$st2
-acc$st3    <- mlr::performance(yhat$st3,
-                               measures = mlr::acc); acc$st3
-acc$st4    <- mlr::performance(yhat$st4, 
-                               measures = mlr::acc); acc$st4
+acc$st3    <- measureACC(response = round(yhat$st3[,3]), 
+                         truth = yhat$st3[,2]); acc$st3
+acc$st4    <- measureACC(response = round(yhat$st4[,3]), 
+                         truth = yhat$st4[,2]); acc$st4
 
 # Logarithmic Loss
 logloss$rf    <- mlr::performance(yhat$rf, 
-                                  measures = mlr::logloss); logloss$rf
+                                  measures = mlr::logloss)
+logloss$rf
 logloss$gb    <- mlr::performance(yhat$gb, 
-                                  measures = mlr::logloss); logloss$gb
+                                  measures = mlr::logloss)
+logloss$gb
 logloss$dt    <- mlr::performance(yhat$dt_test, 
-                                  measures = mlr::logloss); logloss$dt
+                                  measures = mlr::logloss)
+logloss$dt
 logloss$logit <- mlr::performance(yhat$logit_test,
-                                  measures = mlr::logloss); logloss$logit
+                                  measures = mlr::logloss)
+logloss$logit
 logloss$nnet  <- mlr::performance(yhat$nnet_test, 
-                                  measures = mlr::logloss); logloss$nnet
+                                  measures = mlr::logloss)
+logloss$nnet
 logloss$gb2   <- mlr::performance(yhat$gb2_test, 
-                                  measures = mlr::logloss); logloss$gb2
+                                  measures = mlr::logloss)
+logloss$gb2
 logloss$rf2   <- mlr::performance(yhat$rf2_test, 
-                                  measures = mlr::logloss); logloss$rf2
-logloss$st1   <- -10*mean(log(yhat$st1[model.matrix(~ yhat$st1$truth + 0) - 
-                                        yhat$st1$prob.good > 0])); logloss$st1
-logloss$st2   <- -10*mean(log(yhat$st2[model.matrix(~ yhat$st2$truth + 0) - 
-                                        yhat$st2$prob.good > 0])); logloss$st2
-logloss$st3   <- mlr::performance(yhat$st3, 
-                                  measures = mlr::logloss); logloss$st3
-logloss$st4   <- mlr::performance(yhat$st4, 
-                                  measures = mlr::logloss); logloss$st4
+                                  measures = mlr::logloss)
+logloss$rf2
+log_loss=function(actual, predicted)
+{
+  result=-1/length(actual)*
+    (sum((actual*log(predicted)+
+            (1-actual)*log(1-predicted))))
+  return(result)
+}
+logloss$st1   <- log_loss(yhat$st1$truth, yhat$st1$prob.good)
+logloss$st1
+logloss$st2   <- log_loss(yhat$st2$truth, yhat$st2$prob.good)
+logloss$st2
+logloss$st3   <- log_loss(yhat$st3[,2], yhat$st3[,3])
+logloss$st3
+logloss$st4   <- log_loss(yhat$st4[,2], yhat$st4[,3])
+logloss$st4
 
 # MSE/Brier score
 brier$rf      <- mlr::performance(yhat$rf, 
@@ -346,15 +373,16 @@ brier$st1     <- measureBrier(probabilities = yhat$st1$prob.good,
 brier$st2     <- measureBrier(probabilities = yhat$st2$prob.good, 
                               truth = yhat$st2$truth, positive = 1, 
                               negative = 2); brier$st2
-brier$st3     <- mlr::performance(yhat$st3, 
-                                  measures = mlr::brier); brier$st3
-brier$st4     <- mlr::performance(yhat$st4, 
-                                  measures = mlr::brier); brier$st4
-
+brier$st3     <- measureBrier(probabilities = yhat$st3[,3], 
+                              truth = yhat$st3[,2], positive =1, 
+                              negative = 2); brier$st3
+brier$st4     <- measureBrier(probabilities = yhat$st4[,3], 
+                              truth = yhat$st4[,2], positive = 1, 
+                              negative = 2); brier$st4
 
 
 # Make evaluation table
-eval_table           <- cbind(acc, auc, logloss, brier)
+eval_table           <- cbind(auc, acc, logloss, brier)
 rownames(eval_table) <- c("Random Forest", "Gradient Boosting", 
                           "Decision Tree (level 0)", 
                           "Logit Regression (level 0)",
@@ -363,56 +391,10 @@ rownames(eval_table) <- c("Random Forest", "Gradient Boosting",
                           "Gradient Boosting (level 0)",
                           "Stacking Model 1", "Stacking Model 2", 
                           "Stacking Model 3", "Stacking Model 4")
-colnames(eval_table) <- c("Accuracy", "AUC", 
+colnames(eval_table) <- c("AUC", "Accuracy", 
                           "Logarithmic Loss", "Brier Score")
 
 
 print(xtable(eval_table), file="tables/evaltable.txt")
 
-
-
-
-
-# # # #  OLD:
-# Prepare class dataset for prediction
-class_prep <- binary_recoding(dat[is.na(dat$return), ])
-class_prep <- class_prep[, colnames(vars$nnet)]
-
-# Prediction on class data
-class_prediction <- predict(model_lib$nnet, newdata = class_prep, type = "prob")
-
-# Calculate predictions from probabilities by observation specific Bayes 
-# optimal threshold
-prediction_table <- prediction_output_table(pred = class_prediction, 
-                                            data = class_prep)
-head(prediction_table)
-
-# Create ouput file
-class_prediction_file           <- prediction_table[, c("order_item_id", "pred")]
-colnames(class_prediction_file) <- c("order_item_id", "return")
-
-# Create output file
-write.table(class_prediction_file, 
-            file = "20.csv",
-            row.names = FALSE, 
-            sep = ",")
-
-
-#------------------------------------------------------------------
-# Plotting
-#------------------------------------------------------------------
-
-# Importance plot for gradient boosting
-features <- vars$gb
-importance_matrix <- xgb.importance(feature_names = colnames(features), 
-                                    model = model_lib$gb$learner.model)
-importance_plot <- xgb.plot.importance(importance_matrix,
-                                       rel_to_first = TRUE, 
-                                       xlab = "Relative importance")
-
-# Partial Dependence plots for gradient boosting 
-# (needs some time, warning can be ignored)
-pd <- generatePartialDependenceData(obj = model_lib$gb, 
-                                    input = vars$gb)
-pd_plot <- plotPartialDependence(pd, data = getTaskData(gb_task))
 

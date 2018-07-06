@@ -1,22 +1,22 @@
 % latex table generated in R 3.3.0 by xtable 1.8-2 package
-% Thu Jul 05 18:57:23 2018
+% Fri Jul 06 22:05:19 2018
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrr}
   \hline
- & Accuracy & AUC & Logarithmic Loss & Brier Score \\ 
+ & AUC & Accuracy & Logarithmic Loss & Brier Score \\ 
   \hline
-Random Forest & 0.73 & 0.77 & 0.54 & 0.18 \\ 
-  Gradient Boosting & 0.70 & 0.69 & 0.63 & 0.21 \\ 
-  Decision Tree (level 0) & 0.70 & 0.72 & 0.58 & 0.19 \\ 
-  Logit Regression (level 0) & 0.74 & 0.72 & 0.60 & 0.19 \\ 
-  Neural Network (level 0) & 0.68 & 0.70 & 0.59 & 0.20 \\ 
-  Random Forest (level 0) & 0.72 & 0.71 & 0.62 & 0.20 \\ 
-  Gradient Boosting (level 0) & 0.74 & 0.76 & 0.55 & 0.18 \\ 
-  Stacking Model 1 & 0.64 & 0.62 & 0.71 & 0.18 \\ 
-  Stacking Model 2 & 0.64 & 0.75 & 0.70 & 0.18 \\ 
-  Stacking Model 3 & 0.67 & 0.75 & 0.62 & 0.21 \\ 
-  Stacking Model 4 & 0.67 & 0.63 & 0.62 & 0.21 \\ 
+Random Forest & 0.78 & 0.73 & 0.52 & 0.18 \\ 
+  Gradient Boosting & 0.78 & 0.72 & 0.52 & 0.18 \\ 
+  Decision Tree (level 0) & 0.69 & 0.65 & 0.60 & 0.21 \\ 
+  Logit Regression (level 0) & 0.71 & 0.74 & 0.57 & 0.19 \\ 
+  Neural Network (level 0) & 0.76 & 0.74 & 0.53 & 0.18 \\ 
+  Random Forest (level 0) & 0.73 & 0.69 & 0.56 & 0.19 \\ 
+  Gradient Boosting (level 0) & 0.80 & 0.74 & 0.52 & 0.17 \\ 
+  Stacking Model 1 & 0.77 & 0.65 & 0.24 & 0.18 \\ 
+  Stacking Model 2 & 0.78 & 0.63 & 0.24 & 0.18 \\ 
+  Stacking Model 3 & 0.80 & 0.63 & 0.30 & 0.16 \\ 
+  Stacking Model 4 & 0.81 & 0.65 & 0.26 & 0.17 \\ 
    \hline
 \end{tabular}
 \end{table}

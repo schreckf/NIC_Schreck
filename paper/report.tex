@@ -278,61 +278,71 @@ The training process for each model generally consists of establishing a broad-g
 For the Stacked Generalization models, the training dataset is partitioned into five disjoint subsets. Each of the five level 0 generalizers is then build in five iterations as described in section \ref{stacking}. Again, each iteration involves a parameter tuning on 3-fold cross-validation. All level 0 generalizers are then used to predict the observations in the test dataset. Stacking model 1 is then built by averaging over the probabilistic predictions of all five level 0 generalizers. Stacking model 2 is constructed by averaging over the probabilistic predictions of the three least correlated predictions of level 0 generalizers. For that, the correlations of the level 0 generalizers on the training data are investigated. Stacking model 3 is built by using again all level 0 generalizers and a Random Forest as a combining model. The parameters of the combining model are again tuned under 3-fold cross-validation. Finally, Stacking model 4 is constructed by combining the three least correlated predictions of level 0 generalizers by using a Random Forest combiner.
 
 \subsection{Evaluation metrics}\label{metrics}
-In credit risk modelling, typically the misclassification costs are type-specific. This means that a false negative prediction may have different costs than a false positive prediction. When misclassification costs are known, a cost-sensitive model building strategy should be consulted. However, for the purpose of this paper misclassification costs are unknown. Furthermore, the broad field of cost-sensitive learning should may serve as a topic for other studies. Hence, equal misclassification costs for false negative and false positive predictions are assumed.
+In credit risk modelling, the misclassification costs are often type-specific. This means that a false negative prediction may have different costs for the bank than a false positive prediction. When misclassification costs are known, a cost-sensitive model building strategy should be consulted. Since in the context of this paper misclassification costs are however unknown, equal misclassification costs for false negative and false positive predictions are assumed. Furthermore, the broad field of cost-sensitive learning may serve as a topic for other studies. 
 
-\paragraph{Accuracy:} A important metric in evaluation of classification models is the Accuracy metric, which can be interpreted as the percentage of correctly classified points.
+\paragraph{AUC:} In the model building process, tuning of model parameters for each model $m$ is evaluated on the Area Under Curve metric (AUC). The AUC is a ranking indicator that measures the area under the receiver operating characteristic curve (ROC curve) \citep{hanley1982meaning}. For a probabilistic prediction, like in the context of this study, a visualization of the ROC curve can be obtained by plotting the sensitivity against $1 -$ specificity for all cut-off thresholds between zero and one. The AUC value can therefore take values between zero and one as well. A random model would obtain an AUC value of $0.5$, which can thus function as a benchmark value in model evaluation on AUC. In a statistical sense, the AUC estimates the probability that a randomly chosen correct prediction is correctly ranked higher than a randomly chosen false prediction. For model $m$ can be calculated as
+\begin{equation}
+AUC^m = \frac{1}{P \times N}\sum_{j=1}^{P}\sum_{k=1}^{N}(\hat{y}^m_j - \hat{y}^m_k)
+\end{equation}
+, whereby $P$ and $N$ denote the positive (in our case "good") and negative ("bad") instances amongst the outcome values in the credit data. Further, $\hat{y}^m_j$ and $\hat{y}^m_k$ are the predictions for the positive instance $y_j$ and the prediction for the negative instance $y_k$, respectively.
+
+\paragraph{Accuracy:} A further important metric in evaluation of classification models is the Accuracy metric, which can be interpreted as the percentage of correctly classified points.
 \begin{equation}
 Accuracy^m = \frac{TP^m + TN^m}{FP^m + FN^m + TP^m + TN^m}
 \end{equation}
-, whereby $TP^m$ is the number of true positive predictions for model $m$, and $TN^m$, $FP^m$ and $FN^m$ are the corresponding number of true negatives, the number of false positives and the number of false negatives for model $m$.
+, whereby $TP^m$ is the number of true positive predictions for model $m$ and $TN^m$, $FP^m$ and $FN^m$ are the corresponding number of true negatives, the number of false positives and the number of false negatives for model $m$, respectively.
 
-\paragraph{AUC:} During the tuning rounds, predictive precision of the each model $m$ is evaluated on the Area Under Curve (AUC). The AUC is a ranking indicator that measures the area under the receiver operating characteristic curve (ROC curve) \citep{hanley1982meaning}. For a probabilistic prediction like in the context of this study, a visualization of the ROC curve can be obtained by plotting the sensitivity against $1 -$ specificity for all cut-off thresholds between zero and one. The AUC value can therefore take values between zero and one as well. A random model would obtain an AUC value of $0.5$, which can thus function as a benchmark value in model evaluation. In a statistical sense, the AUC estimates the probability that a randomly chosen correct prediction is correctly ranked higher than a randomly chosen false prediction. It can be calculated as
-\begin{equation}
-AUC^m = \frac{1}{G \times B}\sum_{j=1}^{G}\sum_{k=1}^{B}(\hat{y}^m_j - \hat{y}^m_k)
-\end{equation}
-, whereby $G$ and $B$ are the good and bad instances amongst the outcome values in the credit data. Further $\hat{y}^m_j$ and $\hat{y}^m_k$ are the prediction for the positive instance $y_j$ and the prediction for the negative instance $y_k$, respectively.
-
-s\paragraph{Brier Score:}The models will also be assessed on the Brier Score, which is similar to the Mean Squared Error metric in Statistics.
+\paragraph{Brier Score:} The models will also be assessed on the Brier Score, which is identical to the Mean Squared Error metric in statistics.
 \begin{equation}
 Brier^m = \frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}^m_i)^2
 \end{equation}
-, whereby $\hat{y}^m_i$ denotes the predicted probability of model $m$ for observation $y_i$. Use of the MSE metric in the process of cross-validation ensures a minimization of the generalization bias. 
+, whereby $\hat{y}^m_i$ denotes the predicted probability of model $m$ for observation $y_i$. 
 
-\paragraph{Logarithmic Loss:} Logarithmic Loss is a metric for evaluating class predictions that penalizes especially classifiers that are confident about incorrect classifications. For the case of a binary outcome, the Logarithmic Loss is given by\\
+\paragraph{Logarithmic Loss:} The Logarithmic Loss is a metric for evaluating class predictions that penalizes for a high confidence about incorrect classifications. For the case of a binary outcome, the Logarithmic Loss is given by\\
 \begin{equation}
-LogLoss^m = - \frac{1}{N}\sum_{i=1}^{N}(y_i\log(p^m_i) + (1 - y_i)\log(1 - p^m_i))
+LogLoss^m = - \frac{1}{N}\sum_{i=1}^{N}(y^m_i\log(p^m_i) + (1 - y^m_i)\log(1 - p^m_i))
 \end{equation}
 , whereby $p^m_i$ is model $m$'s prediction for observation $y_i$.
 
 \section{Results of empirical study[2pages]}\label{results}
-In the following, this paper's results of the empirical application of Stacking and Ensemble models on credit risk classification will be presented. Table \ref{eval} shows the evaluations of all models on the metrics of MSE and AUC (as well as percentage of correct predictions).
+[maybe include: BiasVarianceTradeoff-graph, AUCplot with all models in]
+In the following, the results of the empirical application of Stacking and Ensemble models on credit risk classification will be presented. Table \ref{eval} shows the evaluations of all models on the test dataset with respect to the metrics Accuracy, AUC, Logarithmic Loss and Brier Score. 
+
+It can be seen that the two Ensemble models, namely the Random Forest and the Gradient Boosting model, are the best performing models with respect to the AUC metric. Since they were tuned on behalf of the AUC measure this is ...
+
+When comparing the five level 0 generalizers, the XXX model performs best on the AUC measure. Notably, the level 0 Random Forest and Gradient Boosting models perform a bit worse than their counterparts mentioned above. This seems to be a result of the partitioning of the dataset during their building process...
+
+When evaluating the four Stacking models, different tendencies can be found. Stacking Model 1 was generated by unweighted average of the predictions of all five level 0 generalizers. When compared to the level 0 generalizers themselves, the Stacking Model 1 could not gain an increase in AUC performance...
+
+
+
 
 \begin{table}[ht]
 \centering
 \begin{tabular}{rrrrr}
   \hline
- & Accuracy & AUC & Logarithmic Loss & Brier Score \\ 
+ & AUC & Accuracy & Logarithmic Loss & Brier Score \\ 
   \hline
-Random Forest & 0.73 & 0.77 & 0.54 & 0.18 \\ 
-  Gradient Boosting & 0.70 & 0.69 & 0.63 & 0.21 \\ 
-  \hline
-  Decision Tree (level 0) & 0.70 & 0.72 & 0.58 & 0.19 \\ 
-  Logit Regression (level 0) & 0.74 & 0.72 & 0.60 & 0.19 \\ 
-  Neural Network (level 0) & 0.68 & 0.70 & 0.59 & 0.20 \\ 
-  Random Forest (level 0) & 0.72 & 0.71 & 0.62 & 0.20 \\ 
-  Gradient Boosting (level 0) & 0.74 & 0.76 & 0.55 & 0.18 \\
-  \hline 
-  Stacking Model 1 & 0.64 & 0.62 & 0.71 & 0.18 \\ 
-  Stacking Model 2 & 0.64 & 0.75 & 0.70 & 0.18 \\ 
-  Stacking Model 3 & 0.67 & 0.75 & 0.62 & 0.21 \\ 
-  Stacking Model 4 & 0.67 & 0.63 & 0.62 & 0.21 \\ 
+Random Forest & 0.78 & 0.73 & 0.52 & 0.18 \\ 
+  Gradient Boosting & 0.78 & 0.72 & 0.52 & 0.18 \\
+\hline 
+  Decision Tree (level 0) & 0.69 & 0.65 & 0.60 & 0.21 \\ 
+  Logit Regression (level 0) & 0.71 & 0.74 & 0.57 & 0.19 \\ 
+  Neural Network (level 0) & 0.76 & 0.74 & 0.53 & 0.18 \\ 
+  Random Forest (level 0) & 0.73 & 0.69 & 0.56 & 0.19 \\ 
+  Gradient Boosting (level 0) & 0.80 & 0.74 & 0.52 & 0.17 \\ 
+\hline
+  Stacking Model 1 & 0.77 & 0.65 & 0.24 & 0.18 \\ 
+  Stacking Model 2 & 0.78 & 0.63 & 0.24 & 0.18 \\ 
+  Stacking Model 3 & 0.80 & 0.63 & 0.30 & 0.16 \\ 
+  Stacking Model 4 & 0.81 & 0.65 & 0.26 & 0.17 \\ 
    \hline
 \end{tabular}
-\caption{Evaluation metrics for all models.}\label{eval}
+\caption{Model performance on the test dataset.}\label{eval}
 \end{table}
 
 \begin{figure}[htp] \centering{
-\includegraphics[scale=1]{graphs/corrgram.pdf}}
+\includegraphics[scale=1]{graphs/corrgram_version2.pdf}}
 \caption{Correlation plot of training dataset predictions.}\label{corrgram}
 \end{figure}  
 

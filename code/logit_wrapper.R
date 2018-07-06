@@ -7,7 +7,7 @@
 
 set.seed(2610) 
 
-logit_task_wrapper    <- makeClassifTask(data = train, target = "customer", 
+logit_task_wrapper    <- makeClassifTask(data = train[, -1], target = "customer", 
                                          positive = "good")
 
 logit_learner_wrapper <- makeLearner("classif.logreg", 

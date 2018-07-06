@@ -8,26 +8,26 @@ gb_task    <- makeClassifTask(data = train_wrapper[, c(vars$gb)],
   
 # Define learner: gradient boosting model consisting of trees 
 gb_learner <- makeLearner("classif.xgboost", 
-                          redict.type = "prob",
+                          predict.type = "prob",
                           par.vals = list("booster" = "gbtree", 
                                           "silent" = 0))
   
 # Tuning the hyperparameter of the model
 gb_parms   <- makeParamSet(
   # Learning rate 
-  makeDiscreteParam("eta", values = c(0.35, 0.45, 0.5, 0.55, 0.6)), 
+  makeDiscreteParam("eta", values = c(0.15, 0.25, 0.3, 0.6)), 
   # Maximum depth of a tree
-  makeIntegerParam("max_depth", lower = 4, upper = 12),
+  makeIntegerParam("max_depth", lower = 3, upper = 10),
   # Minimum number of observations to have in a node
-  makeIntegerParam("min_child_weight", lower = 2, upper = 5), 
+  makeIntegerParam("min_child_weight", lower = 1, upper = 4), 
   # Number of iterations through data
-  makeIntegerParam("nrounds", lower = 8, upper = 16), 
+  makeIntegerParam("nrounds", lower = 4, upper = 12), 
   # L2 regularization on weights
-  makeDiscreteParam("lambda", values = c(0.05, 0.1, 0.15, 0.2, 0.3)),  
+  makeDiscreteParam("lambda", values = c(0.05, 0.1, 0.2)),  
   # Minimum loss reduction
-  makeDiscreteParam("gamma", values = c(0.3, 0.4, 0.5, 0.6)), 
+  makeDiscreteParam("gamma", values = c(0.5, 0.9, 1.5)), 
   # Subsample size
-  makeDiscreteParam("subsample", values = c(0.9, 0.95, 1)) 
+  makeDiscreteParam("subsample", values = c(1)) 
 )  
   
 # Define how dense the parameters areselected from the defined ranges
@@ -84,4 +84,5 @@ model_lib$gb <- mlr::train(gb_tuned, task = gb_task)
 # Prediction on current (one hot encoded) test dataset
 test_onehot  <- mlr::createDummyFeatures(test, target = "customer") 
 yhat$gb      <- predict(model_lib$gb, newdata = test_onehot[, c(vars$gb)])
+
 

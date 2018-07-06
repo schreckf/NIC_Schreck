@@ -29,11 +29,17 @@ data_stacking_test$truth      <- as.factor(data_stacking_test$truth)
 
 # Investigate correlation of predictions and plot correlation matrix
 cormat                        <- cor(data_stacking_train[2:6,2:6])
-
+colnames(cormat) <- c("Decision Tree", "Logistic Regression", 
+                      "Neural Network", "Gradient Boosting", 
+                      "Random Forest")
+rownames(cormat) <- c("Decision Tree", "Logistic Regression", 
+                      "Neural Network", "Gradient Boosting", 
+                      "Random Forest")
+X11(width=6, height=6)
 corrplot(cormat, type = "lower", method = "circle", order = "hclust", 
          col = rev(gray.colors(n = 90, start = 0.5, end = 1, gamma = 12)), 
          tl.col = "black", tl.srt = 45,
-         addCoef.col = "black", cl.lim=c(0, 1))
+         addCoef.col = "black")
 
 ###### Stacking Model 1: Averaging, all base learners ##############
 yhat$st1           <- as.data.frame(matrix(data = c(data_stacking_test$truth, 
@@ -42,129 +48,55 @@ yhat$st1           <- as.data.frame(matrix(data = c(data_stacking_test$truth,
 colnames(yhat$st1) <- c("truth", "prob.good")
 
 
-###### Stacking Model 2: Averaging, least correlated learners ######
+###### Stacking Model 2: Averaging, best learners ######
 yhat$st2           <- as.data.frame(matrix(data = c(data_stacking_test$truth, 
-                                                    rowMeans(data_stacking_test[,-c(1, 3, 5)])), 
+                                                    rowMeans(data_stacking_test[,-c(1, 2, 3)])), 
                                            ncol = 2))
 colnames(yhat$st2) <- c("truth", "prob.good")
 
 
-###### Stacking Model 3: Random Forest, all base learners ##########
+###### Stacking Model 3: Gradient Boosting, all base learners ##########
 set.seed(2610)
-# Define task
-rf_task        <- makeClassifTask(data = data_stacking_train, 
-                                  target = "truth", positive = "1")
 
-# Define learner: decision tree
-rf_learner     <- makeLearner("classif.randomForest", 
-                          predict.type = "prob",
-                          par.vals = list("replace" = TRUE, 
-                                          "importance" = FALSE, 
-                                          "ntree" = 800)) 
+control <- trainControl(method="repeatedcv", number=10, 
+                        repeats=3, savePredictions=TRUE, 
+                        classProbs=TRUE)
+algorithms <- c('glm', 'rpart', 'rf', 'nnet', 'xgbLinear')
+base <- caretList(customer~., data=train, trControl=control, 
+                  methodList=algorithms)
 
-# Tuning the hyperparameters of the random forest
-rf_parms       <- makeParamSet(
-  # Number of features selected at each node
-  makeIntegerParam("mtry", lower = 2, upper = 6),  
-  # Bootstrap sample size 
-  makeDiscreteParam("sampsize", values = c(30, 50, 70, 100, 130)), 
-  # Size of nodes
-  makeIntegerParam("nodesize", lower = 3, upper = 5) 
-) 
-rf_tunecontrol <- makeTuneControlGrid(resolution = 5, 
-                                      tune.threshold = FALSE) 
+# Stacker
+stackControl <- trainControl(method="repeatedcv", number=10, 
+                             repeats=3, savePredictions=TRUE, 
+                             classProbs=TRUE,
+                             summaryFunction = twoClassSummary)
+model_lib$st3 <- caretStack(base, method="gbm", metric="ROC", 
+                            trControl=stackControl)
 
-# Sampling strategy: cross validation
-rf_rdesc       <- makeResampleDesc(method = "CV", 
-                                   iters = 3, 
-                                   stratify = TRUE)
-
-# Tuning with parallel computing
-no_cores       <- detectCores() - 1 # Detect number of cores
-
-parallelStartSocket(no_cores, level = "mlr.tuneParams")
-system.time(
-  rf_tuning    <- tuneParams(rf_learner, task = rf_task, 
-                             resampling = rf_rdesc,
-                             par.set = rf_parms, 
-                             control = rf_tunecontrol, 
-                             measures = mlr::auc)
-)
-parallelStop()
-
-# Results for the different choices of hyperparameters
-rf_tuning_results <- generateHyperParsEffectData(rf_tuning, 
-                                                 partial.dep = TRUE)
-rf_tuning_results$data
-
-# Choose the optimal hyperparameters and update the learner
-rf_tuned          <- setHyperPars(rf_learner, par.vals = rf_tuning$x)
-rf_tuned
-
-# Now we train the model on the full training data (no crossvalidation)
-model_lib$st3     <- mlr::train(rf_tuned, task = rf_task)
-
-# Prediction on current test data
-yhat$st3          <- predict(model_lib$st3, newdata = data_stacking_test)
+# Prediction on test dataset
+yhat$st3          <- matrix(c(rownames(test),
+                              test$customer,
+                              1 - predict(model_lib$st3,
+                                          newdata=test,
+                                          type="prob")),
+                            ncol = 3)
+yhat$st3 <- apply(yhat$st3, 2, function(x) as.numeric(x))
+colnames(yhat$st3) <- c("id", "truth", "prob.good")
 
 
-###### Stacking Model 4: Random Forest, least correlated learners #####
+###### Stacking Model 4: Logistic Regression, all base learners #########
 set.seed(2610)
-# Define task
-rf_task        <- makeClassifTask(data = data_stacking_train[, -c(3,5)], 
-                                  target = "truth", positive = "1")
 
-# Define learner: decision tree
-rf_learner     <- makeLearner("classif.randomForest", 
-                          predict.type = "prob",
-                          par.vals = list("replace" = TRUE, 
-                                          "importance" = FALSE, 
-                                          "ntree" = 800)) 
+# Stacker
+model_lib$st4 <- caretStack(base, method="glmnet",
+                            metric="ROC", trControl=stackControl)
 
-# Tuning the hyperparameters of the random forest
-rf_parms       <- makeParamSet(
-  # Number of features selected at each node.
-  makeIntegerParam("mtry", lower = 2, upper = 6),  
-  # Bootstrap sample size
-  makeDiscreteParam("sampsize", values = c(30, 50, 70, 100, 130)),  
-  # Size of nodes
-  makeIntegerParam("nodesize", lower = 3, upper = 5) 
-) 
-rf_tunecontrol <- makeTuneControlGrid(resolution = 5, 
-                                      tune.threshold = FALSE) 
-
-# Sampling strategy: cross validation
-rf_rdesc       <- makeResampleDesc(method = "CV", 
-                                   iters = 3, 
-                                   stratify = TRUE)
-
-# Tuning with parallel computing
-no_cores       <- detectCores() - 1 # Detect number of cores
-
-parallelStartSocket(no_cores, level = "mlr.tuneParams")
-system.time(
-  rf_tuning    <- tuneParams(rf_learner, task = rf_task, 
-                             resampling = rf_rdesc,
-                             par.set = rf_parms, 
-                             control = rf_tunecontrol, 
-                             measures = mlr::auc)
-)
-parallelStop()
-
-# Results for the different choices of hyperparameters
-rf_tuning_results <- generateHyperParsEffectData(rf_tuning, 
-                                                 partial.dep = TRUE)
-rf_tuning_results$data
-
-# Choose the optimal hyperparameters and update the learner
-rf_tuned          <- setHyperPars(rf_learner, par.vals = rf_tuning$x)
-rf_tuned
-
-# Now we train the model on the full training data (no crossvalidation)
-model_lib$st4     <- mlr::train(rf_tuned, task = rf_task)
-
-# Prediction on current test data
-yhat$st4          <- predict(model_lib$st4, newdata = data_stacking_test[, -c(1,3,5)])
-
-
-
+# Prediction on test dataset
+yhat$st4          <- matrix(c(rownames(test),
+                              test$customer,
+                              1 - predict(model_lib$st4,
+                                          newdata=test,
+                                          type="prob")),
+                            ncol = 3)
+yhat$st4 <- apply(yhat$st4, 2, function(x) as.numeric(x))
+colnames(yhat$st4) <- c("id", "truth", "prob.good")

@@ -7,4 +7,4 @@ This is the working repository for the Seminar *Numerical Introductory Course*. 
 - The folder ``code`` contains the R-code files for the analyis part of the paper
 
 ## Code
-For replication purposes, please download the folder structure of the ``code`` folder. The *MAIN.R*-file should be opened first. Out of this file, all quantlets will be sourced.
+For replication purposes, please download the folder structure of the ``code`` folder. The *MAIN.R*-file should be opened first. This file gives guidance through the replication of the analysis part. All other quantlets are sourced from this file.

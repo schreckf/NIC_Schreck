@@ -25,6 +25,7 @@ library("xtable")
 library("caret")
 library("caretEnsemble")
 library("gbm")
+library("ROCR")
 
 rm(list = ls(all = TRUE))
 graphics.off()
@@ -400,7 +401,6 @@ brier$st4     <- measureBrier(probabilities = yhat$st4[,3],
                               truth = yhat$st4[,2], positive = 1, 
                               negative = 2); brier$st4
 
-
 # Make evaluation table
 eval_table           <- cbind(auc, acc, logloss, brier)
 rownames(eval_table) <- c("Random Forest", "Gradient Boosting", 
@@ -417,4 +417,117 @@ colnames(eval_table) <- c("AUC", "Accuracy",
 
 print(xtable(eval_table), file="tables/evaltable.txt")
 
+# Generate plot with AUC curves for all models
+plot(performance(prediction(yhat$rf$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, col = "gray0", type = "l",
+     lty = 1, lwd = 1.2,
+     xlab="1 - Specificity", ylab="Senstitivity")
 
+plot(performance(prediction(yhat$gb$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray40",
+     type = "l", lty = 1, lwd = 1.2)
+
+plot(performance(prediction(yhat$dt_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray0",
+     type = "l", lty = 1, lwd = 1.2)
+
+plot(performance(prediction(yhat$logit_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray25", 
+     type = "l", lty = 2, lwd = 1.2)
+
+plot(performance(prediction(yhat$nnet_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray50", 
+     type = "l", lty = 2, lwd = 1.2)
+
+plot(performance(prediction(yhat$rf2_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray60", 
+     type = "l", lty = 2, lwd = 1.2)
+
+plot(performance(prediction(yhat$gb2_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray70", 
+     type = "l", lty =2, lwd = 1.2)
+
+plot(performance(prediction(yhat$st1$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gra0", 
+     type = "l", lty = 3, lwd = 1.2)
+
+plot(performance(prediction(yhat$st2$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray25",
+     type = "l", lty = 3, lwd = 1.2)
+
+plot(performance(prediction(yhat$st3[,3], 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray50", 
+     type = "l", lty = 3, lwd = 1.22)
+
+plot(performance(prediction(yhat$st4[,3], 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray75", 
+     type = "l", lty = 3, lwd = 1.2)
+
+lines(x = c(0,1), y = c(0,1))
+
+legend(xy.coords(0.6,0.57), legend = c("Random Forest", 
+                                       "Gradient Boosting", 
+                                       "Decision Tree (level 0)",
+                                       "Logit Regression (level 0)", 
+                                       "Neural Network (level 0)", 
+                                       "Random Forest (level 0)",
+                                       "Gradient Boosting (level 0)",
+                                       "Stacking Model 1",
+                                       "Stacking Model 2", 
+                                       "Stacking Model 3", 
+                                       "Stacking Model 4"), 
+      lty= c(1,1,2,2,2,2,2,3,3,3,3), cex=0.75, col=c("gray0", "gray40", 
+                                                     "gray0", "gray25", 
+                                                     "gray50", "gray60", 
+                                                     "gray70", "gray0", 
+                                                     "gray25", "gray50", 
+                                                     "gray75"),
+      box.lty=0)
+       
+       
+       
+       

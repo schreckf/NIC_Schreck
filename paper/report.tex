@@ -349,11 +349,17 @@ Since all models were tuned on the AUC, the comparison on behalf of this metric 
 The four Stacking models were built on top of the level 0 generalizers. Figure \ref{corrgram} shows the correlations of the predictions of the level 0 generalizers on the training data. It can be seen that the predictions of the level 0 generalizers are (mostly) correlated positively, which seems intuitive since they all predict the target in the similar context. However, correlations are not perfect (all $<|0.9|$). This reveals diversity of predictions, which already indicates that combining them may increase predictive performance.
 
 \begin{figure}[htp] \centering{
-\includegraphics[trim={1cm 3.5cm 1cm 0.63cm}, scale=0.85]{graphs/corrgram_version3.pdf}}
+\includegraphics[trim={1cm 2.5cm 1cm 0.63cm}, scale=0.8]{graphs/corrgram_version3.pdf}}
 \caption[Correlation plot of predictions]{Correlation plot of training dataset predictions of level 0 generalizers.}\label{corrgram}
 \end{figure}  
 
-Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking models 1, 2 and 3 that are based on averaging predictions as well as a Gradient Boosting combiner have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 4 that is based on combining level 0 predictions by Logistic Regression, respectively, even show a better AUC performance than the Random Forest and the Gradient Boosting model. 
+Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking models 1, 2 and 3 that are based on averaging predictions as well as a Gradient Boosting combiner have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 4 that is based on combining level 0 predictions by Logistic Regression, respectively, even show a better AUC performance than the Random Forest and the Gradient Boosting model. For visual comparison, Figure \ref{aucplot} shows the ROC curves related to the AUC values for all models.
+
+\begin{figure}[!htp] \centering{
+\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.8]{graphs/aucplot_final.pdf}}
+\caption[ROC curves]{Receiver Operating Characteristic (ROC) curves for all models.}\label{aucplot}
+\end{figure} 
+
 
 With regards to the Accuracy, the Logistic Regression and the Neural Network perform about equally well as the two Ensemble models. The Decision Tree is however outperformed by the Random Forest and the Gradient Boosting model. Interestingly, all four Stacking models show relatively bad Accuracy values. Regarding the relation of Accuracy and AUC, it can be concluded that the Stacking and Ensemble models do not necessarily perform better on the cut-off threshold of $0.5$, which is implied by the Accuracy metric. However, generalizing over all possible cut-off threshold they clearly outperform most level 0 generalizers as can be seen by the corresponding AUC values. Furthermore, this indicates that the standard cut-off threshold for probabilistic predictions of $0.5$ may not be optimal for those models.
 
@@ -497,7 +503,7 @@ Foreign Worker & yes & 963 & 96.3\% \\
 
 
 \newpage
-\section{Appendix-part2}
+\section{Appendix - Quantlets}
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY

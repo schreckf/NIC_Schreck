@@ -59,24 +59,25 @@
 \lstset{    
     language        =R,
     backgroundcolor =\color{GhostWhite},
-    basicstyle      =\ttfamily,
+    basicstyle      =\scriptsize \ttfamily,
     breaklines      =true,
-    commentstyle    =\color{Gray},
     keepspaces      =false,
-    keywordstyle    =\color{black},
-    deletekeywords  ={data,_},
+    deletekeywords  ={_, model, dt, set, /, rf, measures, response, log, eval, table, nrow, ncol, kappa, labels, replace, prop, cat, file, numeric, sd, median, mean, as, data, row.names, levels, all, path, predict, control, show, par, lower, upper, min, max},
     morekeywords    ={},
     numbers         =left,
-    numbersep       =8pt,
+    numbersep       =10pt,
     numberstyle     =\tiny,
     rulecolor       =\color{black},
     showstringspaces=false,
     showtabs        =false,
     showstringspaces=false,
-    stringstyle     =\color{black},
     tabsize         =2,
-    frame           =single
+    frame           =single,
+   keywordstyle=\color{RoyalBlue},      % keyword style
+   commentstyle=\color{ForestGreen},   % comment style
+   stringstyle=\color{ForestGreen}      % string literal style
 }
+
 
 \usepackage[title]{appendix}
 \usepackage{enumitem}
@@ -106,7 +107,6 @@
 \title{Stacking algorithm and ensemble modeling}
 \author{Frederik Schreck}
 \date{Berlin, \today}
-
 
 \renewcommand{\familydefault}{\rmdefault} % is computer modern sans serif
 
@@ -194,6 +194,7 @@
 \thispagestyle{empty}
 \clearpage
 \setcounter{page}{1}
+
 
 
 %%
@@ -501,9 +502,1604 @@ Foreign Worker & yes & 963 & 96.3\% \\
 \end{table}
 
 
+\clearpage
 
-\newpage
-\section{Appendix - Quantlets}
+\section{Appendix - Code}
+
+\begin{minipage}{0.95\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.1 Main file}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\\
+\begin{lstlisting}
+###################################################################
+# Numerical Introductory Course 2018
+# Topic: Stacking and Ensemble Modelling
+# Supervisor: Prof. Dr. Brenda López Cabrera
+# Student: Frederik Schreck
+###################################################################
+
+
+#------------------------------------------------------------------
+# Prepare environment
+#------------------------------------------------------------------
+
+# Install packages and set working directory to path of main.R file
+library("rstudioapi")
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+library("plyr")
+library("mlr")
+library("parallelMap")
+library("parallel")
+library("ggplot2")
+library("corrplot")
+library("glmnet")
+library("xtable")
+library("caret")
+library("caretEnsemble")
+library("gbm")
+library("ROCR")
+
+rm(list = ls(all = TRUE))
+graphics.off()
+
+
+#------------------------------------------------------------------
+# Loading dataset: German Credit Data
+#------------------------------------------------------------------
+
+creditdata           <- read.delim("dataset/german_credit_data.txt", 
+                                   header = FALSE, sep = " ")
+
+# Renaming of feature
+colnames(creditdata) <- c("account_status", "duration", 
+                           "credit_history", "purpose", "amount", 
+                           "savings", "employment_duration", 
+                           "installment_rate", "status_sex", 
+                           "other_debtors", "residence_duration", 
+                           "property", "age", "installment_plans", 
+                           "housing", "number_credits", "job", 
+                           "liable_people", "telephone", 
+                           "foreign_worker", "customer")
+
+
+#------------------------------------------------------------------
+# Feature Engineering
+#------------------------------------------------------------------
+
+# Formatting and labelling
+creditdata$duration           <- as.numeric(creditdata$duration)
+creditdata$amount             <- as.numeric(creditdata$amount)
+creditdata$installment_rate   <- as.numeric(creditdata$installment_rate)
+creditdata$residence_duration <- as.numeric(creditdata$residence_duration)
+creditdata$age                <- as.numeric(creditdata$age)
+creditdata$number_credits     <- as.numeric(creditdata$number_credits)
+creditdata$duration           <- as.numeric(creditdata$duration)
+creditdata$liable_people      <- as.numeric(creditdata$liable_people)
+creditdata$customer           <- factor(creditdata$customer, 
+                                        levels = c(1, 2), 
+                                        labels = c("good", "bad"))
+
+# No problem of missing values
+apply(creditdata, 2, function(x) sum(is.na(x)))
+
+# Create summary tables for numeric and for categorical features
+numeric_vars <- lapply(Filter(is.numeric, creditdata), 
+                       function(x) rbind(mean = mean(x),
+                                         sd = sd(x),
+                                         median = median(x),
+                                         minimum = min(x),
+                                         maximum = max(x)))
+print(xtable(t(data.frame(numeric_vars))), 
+      file="tables/summary_numeric.txt")
+
+
+cat_vars <- ldply(Filter(is.factor, creditdata), 
+                  function(x) t(rbind(names(table(x)),
+                                      table(x),
+                                      paste0(prop.table(table(x))*100,"%"))))
+colnames(cat_vars) <- c("feature", "category", "Count", "Fraction")
+print(xtable(data.frame(cat_vars)), 
+      file="tables/summary_categorical.txt")
+
+# Standardize numeric features for models performance
+creditdata$duration           <- scale(creditdata$duration)
+creditdata$amount             <- scale(creditdata$amount)
+creditdata$installment_rate   <- scale(creditdata$installment_rate)
+creditdata$residence_duration <- scale(creditdata$residence_duration)
+creditdata$age                <- scale(creditdata$age)
+creditdata$number_credits     <- scale(creditdata$number_credits)
+creditdata$duration           <- scale(creditdata$duration)
+creditdata$liable_people      <- scale(creditdata$liable_people)
+
+
+#------------------------------------------------------------------
+# Data partitioning into training and testing data
+#------------------------------------------------------------------
+
+set.seed(2601)
+idx   <- sample(x = NROW(creditdata),
+                size = floor(0.75*NROW(creditdata)), 
+                replace = FALSE)
+train <- creditdata[idx,]
+test  <- creditdata[-idx,]
+
+
+#------------------------------------------------------------------
+# Feature Selection
+#------------------------------------------------------------------
+
+'For each model, a wrapper approach is run on the training dataset 
+in order to find the best subset of features. The optimal set of
+features is the then used in the subsequent model building part. 
+
+The wrappers as well as the model tuning are evaluated on the AUC
+measure. Tuning of the hyperparameters in the wrapper is done by 
+a grid-approach with 3-fold cross-validation process. 
+
+For reproduction of the results, the output of the wrapper 
+files can be accessed directly.'
+
+# Generate empty lists to store the models and their results in
+vars       <- list() # Selected set of features used for each model
+model_lib  <- list() # Model library
+yhat       <- list() # Predictions on test dataset
+
+
+##### Gradient Boosting wrapper ###################################
+source("gb_wrapper.R")
+
+# For replication purposes: gb_wrapper results
+train_wrapper <- mlr::createDummyFeatures(train, target = "customer")
+vars$gb       <- c("customer", "account_status.A11", 
+                   "account_status.A14", "credit_history.A30",
+                   "credit_history.A34", "purpose.A49", "savings.A63",
+                   "savings.A65", "employment_duration.A75",
+                   "other_debtors.A103", "property.A123",
+                   "installment_plans.A143", "job.A174",
+                   "telephone.A192")       
+
+
+##### Random forest wrapper #######################################
+source("rf_wrapper.R")
+
+# For replication purposes: rf_wrapper results
+vars$rf      <- c("customer", "account_status", "duration", 
+                  "credit_history", "purpose", "savings",
+                  "employment_duration", "other_debtors",
+                  "residence_duration", "age", "installment_plans",
+                  "housing", "job", "liable_people", "foreign_worker")
+
+
+##### Stacked Generalization model ################################
+'For the Stacked Generalization model, firstly the training data is
+split into five disjoint sets. Secondly, the Random Forest model and 
+the Gradient Boosting model are rebuilt on that subset. For each 
+model, a new wrapper approach is applied to find the optimal subset
+of features.
+
+Additionally, a Decision Tree, a Logistic Regression and a 
+Neural Network are built. Similar to the models before, a 
+model-specific wrapper approach is applied before the model
+building process.
+
+For reproduction of the results, the output of the wrapper 
+functions can again be accessed directly.
+'
+
+##### Stacking: Decision tree wrapper #############################
+source("dt_wrapper.R")
+
+# For replication purposes: dt_wrapper results
+vars$dt       <- c("customer", "account_status", "credit_history",
+                   "savings", "number_credits")
+
+##### Stacking: Logit wrapper #####################################
+source("logit_wrapper.R")
+
+# For replication purposes: logit_wrapper results
+vars$logit    <- c("customer", "duration", "credit_history",
+                   "purpose", "amount", "installment_rate",
+                   "status_sex", "residence_duration", "age",
+                   "installment_plans", "number_credits",
+                   "liable_people", "telephone", "foreign_worker")  
+
+##### Stacking: Neural net wrapper ################################
+source("nnet_wrapper.R")
+
+# For replication purposes: nnet_wrapper results
+vars$nnet     <- c("customer", "account_status", "credit_history")
+
+##### Stacking: Gradient Boosting wrapper #########################
+source("gb_wrapper_stacking.R") 
+
+# For replication purposes: gb_wrapper results
+vars$gb2      <- c("customer", "account_status.A11", 
+                   "account_status.A14", "credit_history.A34",
+                   "purpose.A41", "savings.A65", 
+                   "employment_duration.A74", "status_sex.A94",
+                   "other_debtors.A103", "installment_plans.A143")      
+
+##### Stacking: Random forest wrapper #############################
+source("rf_wrapper_stacking.R")
+
+# For replication purposes: rf_wrapper results
+vars$rf2      <- c("customer", "account_status", "duration",
+                   "credit_history", "purpose", "savings",
+                   "employment_duration", "other_debtors",
+                   "residence_duration", "age",
+                   "installment_plans", "housing", "job",
+                   "liable_people", "foreign_worker")
+
+
+#------------------------------------------------------------------
+# Model Building
+#------------------------------------------------------------------
+
+'In the following, the models are built, parameters are tuned and 
+predictions on the test dataset are made. Each model uses the 
+optimal subset of features from  the corresponding wrapper approach.'
+
+###### Random forest tuning #######################################
+source("rf_model.R")
+
+
+###### Gradient Boosting tuning ###################################
+source("gb_model.R")
+
+
+###### Stacking: preparation ######################################
+
+# Partitioning the dataset for the Stacking into five equally 
+# sized disjoint sets
+set.seed(2610)
+idx2       <- sample(rep(1:5,each = nrow(train)/5)) 
+train_sets <- lapply(split(1:nrow(train), idx2), 
+                     function(i) creditdata[i,])
+
+###### Stacking: Decision tree tuning #############################
+source("dt_model.R")
+
+
+###### Stacking: Logit model ######################################
+# No tuning necessary 
+source("logit_model.R")
+
+
+###### Stacking: Neural net tuning ################################
+source("nnet_model.R")
+
+
+###### Stacking: Gradient Boosting tuning #########################
+source("gb_model_stacking.R")
+
+
+###### Stacking: Random forest tuning #############################
+source("rf_model_stacking.R")
+
+
+###### Stacked Generalization Models ##############################
+source("st_model.R")
+
+
+#------------------------------------------------------------------
+# Model evaluation
+#------------------------------------------------------------------
+
+'After having built all the models, they can now be compared and 
+evaluated with regard to a variety of evaluation metrics.'
+
+# Create empty lists to store the measure values in
+auc        <- list() # Area under curve performance measure
+acc        <- list() # Accuracy performance measure
+kappa      <- list() # Kappa performance measure
+logloss    <- list() # Logarithmic Loss measure
+brier      <- list() # Brier score measure 
+
+# AUC
+auc$rf     <- mlr::performance(yhat$rf, 
+                               measures = mlr::auc); auc$rf
+auc$gb     <- mlr::performance(yhat$gb, 
+                               measures = mlr::auc); auc$gb
+auc$dt     <- mlr::performance(yhat$dt_test, 
+                               measures = mlr::auc); auc$dt
+auc$logit  <- mlr::performance(yhat$logit_test, 
+                               measures = mlr::auc); auc$logit
+auc$nnet   <- mlr::performance(yhat$nnet_test, 
+                               measures = mlr::auc); auc$nnet
+auc$gb2    <- mlr::performance(yhat$gb2_test, 
+                               measures = mlr::auc); auc$gb2
+auc$rf2    <- mlr::performance(yhat$rf2_test, 
+                               measures = mlr::auc); auc$rf2
+auc$st1    <- measureAUC(probabilities = yhat$st1$prob.good, 
+                      truth = yhat$st1$truth, positive = "1", 
+                      negative = "2"); auc$st1
+auc$st2    <- measureAUC(probabilities = yhat$st2$prob.good, 
+                      truth = yhat$st2$truth, positive = "1", 
+                      negative = "2"); auc$st2
+auc$st3    <- measureAUC(probabilities = yhat$st3[,3], 
+                         truth = yhat$st3[,2], positive = "1", 
+                         negative = "2"); auc$st3
+auc$st4    <- measureAUC(probabilities = yhat$st4[,3], 
+                         truth = yhat$st4[,2], positive = "1", 
+                         negative = "2"); auc$st4
+
+# Accuracy
+acc$rf     <- mlr::performance(yhat$rf, 
+                               measures = mlr::acc); acc$rf
+acc$gb     <- mlr::performance(yhat$gb, 
+                               measures = mlr::acc); acc$gb
+acc$dt     <- mlr::performance(yhat$dt_test, 
+                               measures = mlr::acc); acc$dt
+acc$logit  <- mlr::performance(yhat$logit_test, 
+                               measures = mlr::acc); acc$logit
+acc$nnet   <- mlr::performance(yhat$nnet_test,
+                               measures = mlr::acc); acc$nnet
+acc$gb2    <- mlr::performance(yhat$gb2_test,
+                               measures = mlr::acc); acc$gb2
+acc$rf2    <- mlr::performance(yhat$rf2_test, 
+                               measures = mlr::acc); acc$rf2
+acc$st1    <- measureACC(response = round(yhat$st1$prob.good), 
+                         truth = yhat$st1$truth); acc$st1
+acc$st2    <- measureACC(response = round(yhat$st2$prob.good), 
+                         truth = yhat$st2$truth); acc$st2
+acc$st3    <- measureACC(response = round(yhat$st3[,3]), 
+                         truth = yhat$st3[,2]); acc$st3
+acc$st4    <- measureACC(response = round(yhat$st4[,3]), 
+                         truth = yhat$st4[,2]); acc$st4
+
+# Logarithmic Loss
+logloss$rf    <- mlr::performance(yhat$rf, 
+                                  measures = mlr::logloss)
+logloss$rf
+logloss$gb    <- mlr::performance(yhat$gb, 
+                                  measures = mlr::logloss)
+logloss$gb
+logloss$dt    <- mlr::performance(yhat$dt_test, 
+                                  measures = mlr::logloss)
+logloss$dt
+logloss$logit <- mlr::performance(yhat$logit_test,
+                                  measures = mlr::logloss)
+logloss$logit
+logloss$nnet  <- mlr::performance(yhat$nnet_test, 
+                                  measures = mlr::logloss)
+logloss$nnet
+logloss$gb2   <- mlr::performance(yhat$gb2_test, 
+                                  measures = mlr::logloss)
+logloss$gb2
+logloss$rf2   <- mlr::performance(yhat$rf2_test, 
+                                  measures = mlr::logloss)
+logloss$rf2
+log_loss=function(actual, predicted)
+{
+  result=-1/length(actual)*
+    (sum((actual*log(predicted)+
+            (1-actual)*log(1-predicted))))
+  return(result)
+}
+logloss$st1   <- log_loss(yhat$st1$truth, yhat$st1$prob.good)
+logloss$st1
+logloss$st2   <- log_loss(yhat$st2$truth, yhat$st2$prob.good)
+logloss$st2
+logloss$st3   <- log_loss(yhat$st3[,2], yhat$st3[,3])
+logloss$st3
+logloss$st4   <- log_loss(yhat$st4[,2], yhat$st4[,3])
+logloss$st4
+
+# MSE/Brier score
+brier$rf      <- mlr::performance(yhat$rf, 
+                                  measures = mlr::brier); brier$rf
+brier$gb      <- mlr::performance(yhat$gb, 
+                                  measures = mlr::brier); brier$gb
+brier$dt      <- mlr::performance(yhat$dt_test, 
+                                  measures = mlr::brier); brier$dt
+brier$logit   <- mlr::performance(yhat$logit_test,
+                                  measures = mlr::brier); brier$logit
+brier$nnet    <- mlr::performance(yhat$nnet_test, 
+                                  measures = mlr::brier); brier$nnet
+brier$gb2     <- mlr::performance(yhat$gb2_test, 
+                                  measures = mlr::brier); brier$gb2
+brier$rf2     <- mlr::performance(yhat$rf2_test, 
+                                  measures = mlr::brier); brier$rf2
+brier$st1     <- measureBrier(probabilities = yhat$st1$prob.good, 
+                              truth = yhat$st1$truth, 
+                              positive = 1, negative = 2); brier$st1
+brier$st2     <- measureBrier(probabilities = yhat$st2$prob.good, 
+                              truth = yhat$st2$truth, positive = 1, 
+                              negative = 2); brier$st2
+brier$st3     <- measureBrier(probabilities = yhat$st3[,3], 
+                              truth = yhat$st3[,2], positive =1, 
+                              negative = 2); brier$st3
+brier$st4     <- measureBrier(probabilities = yhat$st4[,3], 
+                              truth = yhat$st4[,2], positive = 1, 
+                              negative = 2); brier$st4
+
+# Make evaluation table
+eval_table           <- cbind(auc, acc, logloss, brier)
+rownames(eval_table) <- c("Random Forest", "Gradient Boosting", 
+                          "Decision Tree (level 0)", 
+                          "Logit Regression (level 0)",
+                          "Neural Network (level 0)", 
+                          "Random Forest (level 0)", 
+                          "Gradient Boosting (level 0)",
+                          "Stacking Model 1", "Stacking Model 2", 
+                          "Stacking Model 3", "Stacking Model 4")
+colnames(eval_table) <- c("AUC", "Accuracy", 
+                          "Logarithmic Loss", "Brier Score")
+
+
+print(xtable(eval_table), file="tables/evaltable.txt")
+
+# Generate plot with AUC curves for all models
+plot(performance(prediction(yhat$rf$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, col = "gray0", type = "l",
+     lty = 1, lwd = 1.2,
+     xlab="1 - Specificity", ylab="Senstitivity")
+
+plot(performance(prediction(yhat$gb$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray40",
+     type = "l", lty = 1, lwd = 1.2)
+
+plot(performance(prediction(yhat$dt_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray0",
+     type = "l", lty = 1, lwd = 1.2)
+
+plot(performance(prediction(yhat$logit_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray25", 
+     type = "l", lty = 2, lwd = 1.2)
+
+plot(performance(prediction(yhat$nnet_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray50", 
+     type = "l", lty = 2, lwd = 1.2)
+
+plot(performance(prediction(yhat$rf2_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray60", 
+     type = "l", lty = 2, lwd = 1.2)
+
+plot(performance(prediction(yhat$gb2_test$data$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray70", 
+     type = "l", lty =2, lwd = 1.2)
+
+plot(performance(prediction(yhat$st1$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gra0", 
+     type = "l", lty = 3, lwd = 1.2)
+
+plot(performance(prediction(yhat$st2$prob.good, 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray25",
+     type = "l", lty = 3, lwd = 1.2)
+
+plot(performance(prediction(yhat$st3[,3], 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray50", 
+     type = "l", lty = 3, lwd = 1.22)
+
+plot(performance(prediction(yhat$st4[,3], 
+                            labels = matrix(test$customer, 
+                                            nrow = NROW(test$customer), 
+                                            ncol = 1))
+                 , "tpr", "fpr"),
+     colorize = FALSE, add = TRUE, col = "gray75", 
+     type = "l", lty = 3, lwd = 1.2)
+
+lines(x = c(0,1), y = c(0,1))
+
+legend(xy.coords(0.6,0.57), legend = c("Random Forest", 
+                                       "Gradient Boosting", 
+                                       "Decision Tree (level 0)",
+                                       "Logit Regression (level 0)", 
+                                       "Neural Network (level 0)", 
+                                       "Random Forest (level 0)",
+                                       "Gradient Boosting (level 0)",
+                                       "Stacking Model 1",
+                                       "Stacking Model 2", 
+                                       "Stacking Model 3", 
+                                       "Stacking Model 4"), 
+      lty= c(1,1,2,2,2,2,2,3,3,3,3), cex=0.75, col=c("gray0", "gray40", 
+                                                     "gray0", "gray25", 
+                                                     "gray50", "gray60", 
+                                                     "gray70", "gray0", 
+                                                     "gray25", "gray50", 
+                                                     "gray75"),
+      box.lty=0)
+       
+       
+       
+       
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.2 Gradient Boosting Model Feature Selection}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Variable selection for the Gradient Boosting model. A wrapper approach #####
+
+# A model building approach with sequential forward selection is 
+# established in order to find the best subset of features. 
+# Each model is built with crossvalidation on the AUC measure.
+
+set.seed(2610) 
+
+# One-hot-encoding of categorical features
+train_wrapper     <- mlr::createDummyFeatures(train, 
+                                              target = "customer") 
+
+gb_task_wrapper   <- makeClassifTask(data = train_wrapper, 
+                                     target = "customer", 
+                                     positive = "good")
+
+gb_learner_wrapper<- makeLearner("classif.xgboost",
+                                 predict.type = "prob") 
+
+gb_ctrl_wrapper   <- makeFeatSelControlSequential(method = "sfs", 
+                                                  alpha = 0.00001) 
+
+gb_rdesc_wrapper  <- makeResampleDesc("CV", iters = 3)
+
+gb_sfeats         <- selectFeatures(learner = gb_learner_wrapper,
+                                    task = gb_task_wrapper,
+                                    resampling = gb_rdesc_wrapper,
+                                    control = gb_ctrl_wrapper,
+                                    show.info = TRUE, 
+                                    measures = mlr::auc)
+
+# Performance score for each combination of features
+analyzeFeatSelResult(gb_sfeats) 
+
+# Next, I define the dataset to use for the gradient 
+# boosting model. This dataset is then used in the model 
+# building file "gb_model.R"
+vars$gb          <- c("customer", gb_sfeats$x)
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.3 Random Forest Model Feature Selection}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Feature selection for the Random Forest model. A wrapper approach #####
+
+# A model building approach with sequential forward selection is established in order
+# to find the best subset of features. Each model is built with crossvalidation on 
+# the AUC measure.
+
+set.seed(2610) 
+
+rf_task_wrapper     <- makeClassifTask(data = train,
+                                       target = "customer",
+                                       positive = "good")
+
+rf_learner_wrapper  <- makeLearner("classif.randomForest", 
+                                   predict.type = "prob",
+                                   "ntree" = 300)
+
+rf_ctrl_wrapper     <- makeFeatSelControlSequential(method = "sfs", 
+                                                    alpha = 0.00001)
+
+rf_rdesc_wrapper    <- makeResampleDesc("CV", iters = 3)
+
+rf_sfeats           <- selectFeatures(learner = rf_learner_wrapper,
+                                      task = rf_task_wrapper,
+                                      resampling = rf_rdesc_wrapper,
+                                      control = rf_ctrl_wrapper,
+                                      show.info = TRUE,
+                                      measures = mlr::auc)
+
+# Performance score for each combination
+analyzeFeatSelResult(rf_sfeats)
+
+# Next, I define the dataset to use for the gradient boosting model.
+# This dataset is then used in the model building file "rf_model.R"
+vars$rf <- c("customer", rf_sfeats$x)
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.4 Stacking: Decision Tree (level 0) Feature Selection}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Feature selection for the Decision Tree model. A wrapper approach #####
+
+# A model building approach with sequential forward selection is 
+# established in order to find the best subset of features. 
+# Each model is built with crossvalidation on the AUC measure.
+
+set.seed(2610) 
+
+dt_task_wrapper     <- makeClassifTask(data = train, target = "customer", 
+                                       positive = "good")
+
+dt_learner_wrapper  <- makeLearner("classif.rpart",
+                                   predict.type = "prob") 
+
+# We set the minimum required difference to 0.0001 Euros in expected loss
+# per observation
+dt_ctrl_wrapper     <- makeFeatSelControlSequential(method = "sfs", 
+                                                    alpha = 0.00001) 
+
+dt_rdesc_wrapper    <- makeResampleDesc("CV", iters = 3)
+ 
+dt_sfeats           <- selectFeatures(learner = dt_learner_wrapper,
+                                      task = dt_task_wrapper,
+                                      resampling = dt_rdesc_wrapper,
+                                      control = dt_ctrl_wrapper,
+                                      show.info = TRUE,
+                                      measures = mlr::auc)
+
+# Performance score for each combination of features
+analyzeFeatSelResult(dt_sfeats)
+
+# Next, I store the optimal set of features to later use it 
+# in the model building part file "dt_model.R"
+vars$dt <- c("customer", dt_sfeats$x)
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.5 Stacking: Logistic Regression (level 0) Feature Selection}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Feature selection for the Logit model. A wrapper approach #####
+
+# A model building approach with sequential forward selection is 
+# established in order to find the best subset of features. 
+# Each model is built with crossvalidation on 
+# the AUC measure.
+
+set.seed(2610) 
+
+logit_task_wrapper    <- makeClassifTask(data = train[, -1], target = "customer", 
+                                         positive = "good")
+
+logit_learner_wrapper <- makeLearner("classif.logreg", 
+                                     predict.type = "prob") 
+
+logit_ctrl_wrapper    <- makeFeatSelControlSequential(method = "sfs", 
+                                                      alpha = 0.00001)
+ 
+logit_rdesc_wrapper   <- makeResampleDesc("CV", iters = 3)
+
+logit_sfeats          <- selectFeatures(learner = logit_learner_wrapper,
+                                        task = logit_task_wrapper,
+                                        resampling = logit_rdesc_wrapper,
+                                        control = logit_ctrl_wrapper,
+                                        show.info = TRUE,
+                                        measures = mlr::auc)
+
+# Performance score for each combination
+analyzeFeatSelResult(logit_sfeats)
+
+# Next, I store the optimal set of features to later use it 
+# in the model building part file "logit_model.R"
+vars$logit <- c("customer", logit_sfeats$x)
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.6 Stacking: Neural Network (level 0) Feature Selection}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Feature selection for the Neural Network. A wrapper approach #######
+
+# A model building approach with sequential forward selection is 
+# established in order to find the best subset of features. 
+# Each model is built with crossvalidation on the AUC measure.
+
+set.seed(2610) 
+
+nnet_task_wrapper     <- makeClassifTask(data = train, 
+                                         target = "customer", 
+                                         positive = "good")
+
+nnet_learner_wrapper  <- makeLearner("classif.nnet",
+                                     predict.type = "prob",
+                                     "trace" = FALSE)
+
+nnet_ctrl_wrapper     <- makeFeatSelControlSequential(method = "sfs", 
+                                                      alpha = 0.00001)
+
+nnet_rdesc_wrapper    <- makeResampleDesc("CV", iters = 3)
+
+nnet_sfeats           <- selectFeatures(learner = nnet_learner_wrapper,
+                                        task = nnet_task_wrapper, 
+                                        resampling = nnet_rdesc_wrapper,
+                                        control = nnet_ctrl_wrapper, 
+                                        show.info = TRUE,
+                                        measures = mlr::auc)
+
+# Performance score for each combination
+analyzeFeatSelResult(nnet_sfeats)
+
+# Next, I store the optimal set of features to later use it 
+# in the model building part file "nnet_model.R"
+vars$nnet <- c("customer", nnet_sfeats$x)
+\end{lstlisting}
+
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.7 Stacking: Gradient Boosting (level 0) Feature Selection}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Feature selection for the Gradient Boosting model. A wrapper approach #####
+
+# A model building approach with sequential forward selection is 
+# established in order to find the best subset of features. 
+# Each model is built with crossvalidation on the AUC measure.
+
+# One-hot-encoding of categorical features
+train_wrapper2        <- mlr::createDummyFeatures(train, target = "customer") 
+
+gb_task_wrapper       <- makeClassifTask(data = train_wrapper2, 
+                                         target = "customer", 
+                                         positive = "good")
+
+gb_learner_wrapper    <- makeLearner("classif.xgboost",
+                                     predict.type = "prob") 
+
+gb_ctrl_wrapper       <- makeFeatSelControlSequential(method = "sfs",
+                                                      alpha = 0.00001) 
+
+gb_rdesc_wrapper      <- makeResampleDesc("CV", iters = 3)
+
+gb_sfeats             <- selectFeatures(learner = gb_learner_wrapper,
+                                        task = gb_task_wrapper,
+                                        resampling = gb_rdesc_wrapper,
+                                        control = gb_ctrl_wrapper,
+                                        show.info = TRUE, 
+                                        measures = mlr::auc)
+
+# Performance score for each combination of features
+analyzeFeatSelResult(gb_sfeats) 
+
+# Next, I store the optimal set of features to later use it 
+# in the model building part file  "gb_model_stacking.R"
+vars$gb2 <- c("customer", gb_sfeats$x)
+\end{lstlisting}
+
+
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.8 Stacking: Random Forest (level 0) Feature Selection}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Feature selection for the Random Forest model. A wrapper approach #####
+
+# A model building approach with sequential forward selection is 
+# established in order to find the best subset of features. 
+# Each model is built with crossvalidation on the AUC measure.
+
+set.seed(2610) 
+
+rf_task_wrapper     <- makeClassifTask(data = train,
+                                       target = "customer",
+                                       positive = "good")
+
+rf_learner_wrapper  <- makeLearner("classif.randomForest", 
+                                   predict.type = "prob",
+                                   "ntree" = 300)
+
+rf_ctrl_wrapper   <- makeFeatSelControlSequential(method = "sfs", 
+                                                  alpha = 0.00001)
+
+rf_rdesc_wrapper  <- makeResampleDesc("CV", iters = 3)
+
+rf_sfeats         <- selectFeatures(learner = rf_learner_wrapper,
+                                    task = rf_task_wrapper,
+                                    resampling = rf_rdesc_wrapper,
+                                    control = rf_ctrl_wrapper,
+                                    show.info = TRUE,
+                                    measures = mlr::auc)
+
+# Performance score for each combination
+analyzeFeatSelResult(rf_sfeats)
+
+# Next, I store the optimal set of features to later use it 
+# in the model building part file "rf_model_stacking.R"
+vars$rf2 <- c("customer", rf_sfeats$x)
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.9 Random Forest Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+############### Random forest model ###############################
+
+set.seed(2610)
+
+# Define task
+rf_task    <- makeClassifTask(data = train[, c(vars$rf)], 
+                           target = "customer", positive = "good")
+  
+# Define learner: decision tree
+rf_learner <- makeLearner("classif.randomForest", 
+                          predict.type = "prob",
+                          par.vals = list("replace" = TRUE, 
+                                          "importance" = FALSE, 
+                                          "ntree" = 800)) 
+  
+# Tuning the hyperparameters of the random forest
+rf_parms   <- makeParamSet(
+  # Number of features selected at each node
+  makeIntegerParam("mtry", lower = 2, upper = 12), 
+  # Bootstrap sample size
+  makeDiscreteParam("sampsize", values = c(30, 50, 70, 100, 130)),
+  # Node size
+  makeIntegerParam("nodesize", lower = 2, upper = 12) 
+) 
+rf_tunecontrol <- makeTuneControlGrid(resolution = 7, tune.threshold = FALSE) 
+  
+# Cross validation
+rf_rdesc       <- makeResampleDesc(method = "CV", iters = 3, stratify = TRUE)
+  
+# Tuning with parallel computing
+no_cores       <- detectCores() - 1 
+  
+parallelStartSocket(no_cores, level = "mlr.tuneParams")
+system.time(
+  rf_tuning    <- tuneParams(rf_learner, task = rf_task, 
+                             resampling = rf_rdesc,
+                             par.set = rf_parms, 
+                             control = rf_tunecontrol, 
+                             measures = mlr::auc)
+)
+parallelStop()
+
+# Results for the different choices of hyperparameters
+rf_tuning_results <- generateHyperParsEffectData(rf_tuning, partial.dep = TRUE)
+rf_tuning_results$data
+  
+# Detailed investigation
+tapply(rf_tuning_results$data$auc.test.mean, 
+       INDEX = c(rf_tuning_results$data$mtry), mean)
+tapply(rf_tuning_results$data$auc.test.mean, 
+       INDEX = c(rf_tuning_results$data$sampsize), mean)
+tapply(rf_tuning_results$data$auc.test.mean, 
+       INDEX = c(rf_tuning_results$data$nodesize), mean)
+  
+# Choose the optimal hyperparameters and update the learner
+rf_tuned     <- setHyperPars(rf_learner, par.vals = rf_tuning$x)
+rf_tuned
+  
+# Now we train the model on the full training data 
+model_lib$rf <- mlr::train(rf_tuned, task = rf_task)
+  
+# Prediction on current test data
+yhat$rf      <- predict(model_lib$rf, newdata = test)
+\end{lstlisting}
+
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.10 Gradient Boosting Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Gradient Boosting model (with mlr package) #################
+
+set.seed(2610)
+
+# Define task
+gb_task    <- makeClassifTask(data = train_wrapper[, c(vars$gb)],
+                              target = "customer", positive = "good")
+  
+# Define learner: gradient boosting model consisting of trees 
+gb_learner <- makeLearner("classif.xgboost", 
+                          predict.type = "prob",
+                          par.vals = list("booster" = "gbtree", 
+                                          "silent" = 0))
+  
+# Tuning the hyperparameter of the model
+gb_parms   <- makeParamSet(
+  # Learning rate 
+  makeDiscreteParam("eta", values = c(0.15, 0.25, 0.3, 0.6)), 
+  # Maximum depth of a tree
+  makeIntegerParam("max_depth", lower = 3, upper = 10),
+  # Minimum number of observations to have in a node
+  makeIntegerParam("min_child_weight", lower = 1, upper = 4), 
+  # Number of iterations through data
+  makeIntegerParam("nrounds", lower = 4, upper = 12), 
+  # L2 regularization on weights
+  makeDiscreteParam("lambda", values = c(0.05, 0.1, 0.2)),  
+  # Minimum loss reduction
+  makeDiscreteParam("gamma", values = c(0.5, 0.9, 1.5)), 
+  # Subsample size
+  makeDiscreteParam("subsample", values = c(1)) 
+)  
+  
+# Define how dense the parameters areselected from the defined ranges
+gb_tunecontrol <- makeTuneControlGrid(resolution = 3, 
+                                      tune.threshold = FALSE)
+
+# Sampling strategy: cross validation
+gb_rdesc       <- makeResampleDesc(method = "CV", 
+                                   iters = 3, 
+                                   stratify = TRUE)
+  
+# Tuning
+no_cores       <- detectCores() - 1 # Detect number of cores
+
+parallelStartSocket(no_cores, level = "mlr.tuneParams")
+system.time(
+  gb_tuning    <- tuneParams(gb_learner, 
+                             task = gb_task,
+                             resampling = gb_rdesc,
+                             par.set = gb_parms, 
+                             control = gb_tunecontrol,
+                             measures = mlr::auc)
+)   
+parallelStop()
+  
+# Results for the different choices of hyperparameters
+gb_tuning_results <- generateHyperParsEffectData(gb_tuning, 
+                                                 partial.dep = TRUE)
+gb_tuning_results$data
+  
+# Detailed investigation
+tapply(gb_tuning_results$data$auc.test.mean, 
+       INDEX = c(gb_tuning_results$data$eta), mean)
+tapply(gb_tuning_results$data$auc.test.mean, 
+       INDEX = c(gb_tuning_results$data$min_child_weight), mean)
+tapply(gb_tuning_results$data$auc.test.mean, 
+       INDEX = c(gb_tuning_results$data$nrounds), mean)
+tapply(gb_tuning_results$data$auc.test.mean, 
+       INDEX = c(gb_tuning_results$data$lambda), mean)
+tapply(gb_tuning_results$data$auc.test.mean, 
+       INDEX = c(gb_tuning_results$data$gamma), mean)
+tapply(gb_tuning_results$data$auc.test.mean, 
+       INDEX = c(gb_tuning_results$data$subsample), mean)
+tapply(gb_tuning_results$data$auc.test.mean, 
+       INDEX = c(gb_tuning_results$data$max_depth), mean)
+
+# Choose the optimal hyperparameters and update the learner
+gb_tuned     <- setHyperPars(gb_learner, par.vals = gb_tuning$x)
+gb_tuned
+
+# Now we train the model on the full training data 
+model_lib$gb <- mlr::train(gb_tuned, task = gb_task)
+
+# Prediction on current (one hot encoded) test dataset
+test_onehot  <- mlr::createDummyFeatures(test, target = "customer") 
+yhat$gb      <- predict(model_lib$gb, newdata = test_onehot[, c(vars$gb)])
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.11 Stacking: Decision Tree (level 0) Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+################ Decision tree model ##############################
+
+set.seed(2610)
+pred <- list()
+
+# Define dataset
+for (i in 1:5) {
+  test_st    <- train_sets[[i]]
+  train_st   <- train[-as.numeric(rownames(train_sets[[i]])), ]
+
+  # Define task
+  dt_task    <- makeClassifTask(data = train_st[, c(vars$dt)], 
+                                target = "customer", 
+                                positive = "good")
+  
+  # Define learner: decision tree
+  dt_learner <- makeLearner("classif.rpart", 
+                            predict.type = "prob") 
+  
+  # Tuning the hyperparameter of the tree
+  dt_parms   <- makeParamSet(
+    # Complexity parameter
+    makeNumericParam("cp", lower = 0.00005, upper = 0.001), 
+    # Minimum number of observation in a node for a split
+    makeDiscreteParam("minsplit", values = c(5, 7, 10, 12, 15, 17, 
+                                             20, 23, 25, 27, 30)),  
+    # Minimum number of observation to keep in terminal nodes
+    makeDiscreteParam("minbucket", values = c(5, 8, 10, 12, 
+                                              15, 18, 21, 25)) 
+  )  
+  
+  # Grid density
+  dt_tunecontrol <- makeTuneControlGrid(resolution = 10, 
+                                        tune.threshold = FALSE)
+  
+  # Sampling strategy: cross validation
+  dt_rdesc       <- makeResampleDesc(method = "CV", 
+                                     iters = 3, 
+                                     stratify = TRUE)
+  
+  # Tuning using parallelization
+  no_cores       <- detectCores() - 1 # Detect number of cores
+  
+  parallelStartSocket(no_cores, level = "mlr.tuneParams")
+  system.time(
+    dt_tuning    <- tuneParams(dt_learner, 
+                               task = dt_task, 
+                               resampling = dt_rdesc,
+                               par.set = dt_parms,
+                               control = dt_tunecontrol,
+                               measures = mlr::auc)
+  )
+  parallelStop()
+  
+  # Results for the different choices of hyperparameters
+  dt_tuning_results <- generateHyperParsEffectData(dt_tuning, 
+                                                   partial.dep = TRUE)
+  dt_tuning_results$data
+  
+  # Detailed investigation
+  tapply(dt_tuning_results$data$auc.test.mean, 
+         INDEX = c(dt_tuning_results$data$cp), mean)
+  tapply(dt_tuning_results$data$auc.test.mean, 
+         INDEX = c(dt_tuning_results$data$minsplit), mean)
+  tapply(dt_tuning_results$data$auc.test.mean, 
+         INDEX = c(dt_tuning_results$data$minbucket), mean)
+  
+  # Choose the optimal hyperparameters and update the learner
+  dt_tuned     <- setHyperPars(dt_learner, par.vals = dt_tuning$x)
+  dt_tuned
+  
+  # Now the model is trained on the corresponding training data 
+  model_lib$dt <- mlr::train(dt_tuned, task = dt_task)
+  
+  # Prediction on current test_st data
+  pred[[i]]    <- predict(model_lib$dt, newdata = test_st)
+}
+
+# Combine subset predictions to obtain prediction on train dataset
+yhat$dt_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data, 
+                        pred[[4]]$data, pred[[5]]$data)
+
+# Prediction on test data 
+yhat$dt_test   <- predict(model_lib$dt, newdata = test)
+\end{lstlisting}
+
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.12 Stacking: Logistic Regression (level 0) Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Logit model ################################################
+
+set.seed(2610)
+pred <- list()
+
+# Define dataset
+for (i in 1:5) {
+  test_st       <- train_sets[[i]]
+  train_st      <- train[-as.numeric(rownames(train_sets[[i]])), ]
+    
+  # Define task
+  logit_task    <- makeClassifTask(data = train_st[, c(vars$logit)], 
+                                   target = "customer", 
+                                   positive = "good")
+  
+  # Define learner: logistic regression
+  logit_learner <- makeLearner("classif.logreg", 
+                               predict.type = "prob") 
+  
+  # No tuning of hyperparameters necessary for logit model
+  
+  # Train the model on the full corresponding training data 
+  model_lib$logit <- mlr::train(logit_learner, task = logit_task)
+  
+  # Prediction on current test_st data
+  pred[[i]]       <- predict(model_lib$logit, newdata = test_st)
+}  
+
+# Combine subset predictions to obtain full prediction on train data
+yhat$logit_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
+                           pred[[4]]$data, pred[[5]]$data)
+
+# Prediction on test data 
+yhat$logit_test   <- predict(model_lib$logit, newdata = test)
+\end{lstlisting}
+
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.13 Stacking: Neural Network (level 0) Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Neural Network #############################################
+
+set.seed(2610)
+pred <- list()
+
+# Define dataset
+for (i in 1:5) {
+  test_st       <- train_sets[[i]]
+  train_st      <- train[-as.numeric(rownames(train_sets[[i]])), ]
+    
+  # Define task
+  nnet_task     <- makeClassifTask(data = train_st[, c(vars$nnet)], 
+                                   target = "customer", 
+                                   positive = "good")
+  
+  # Define learner: neural net
+  nnet_learner  <- makeLearner("classif.nnet", 
+                               predict.type = "prob",
+                               par.vals = list("trace" = FALSE, 
+                                               "maxit" = 400, 
+                                               "MaxNWts" = 3500)) 
+  
+  # Tuning the hyperparameters of the random forest
+  nnet_parms    <- makeParamSet(
+    makeDiscreteParam("decay", values = c(0, 0.1, 0.2, 0.3,
+                                          0.4, 0.5, 0.6)), 
+    makeDiscreteParam("size", values = c(2, 4, 5, 6, 7, 8,
+                                         9, 10, 11, 12))
+    )
+  
+  nnet_tunecontrol <- makeTuneControlGrid(resolution = 8, 
+                                          tune.threshold = FALSE) 
+  
+  # Sampling strategy: cross validation
+  nnet_rdesc       <- makeResampleDesc(method = "CV", 
+                                       iters = 3, 
+                                       stratify = TRUE)
+  
+  # Tuning with parallel computing
+  no_cores         <- detectCores() - 1 # Detect number of cores
+  
+  parallelStartSocket(no_cores, level = "mlr.tuneParams")
+  system.time(
+    nnet_tuning    <- tuneParams(nnet_learner, 
+                                 task = nnet_task, 
+                                 resampling = nnet_rdesc, 
+                                 par.set = nnet_parms, 
+                                 control = nnet_tunecontrol, 
+                                 measures = mlr::auc)
+  )
+  parallelStop()
+  
+  # Results for the different choices of hyperparameters
+  nnet_tuning_results <- generateHyperParsEffectData(nnet_tuning, 
+                                                     partial.dep = TRUE)
+  nnet_tuning_results$data
+  
+  # Detailed investigation
+  tapply(nnet_tuning_results$data$auc.test.mean, 
+         INDEX = c(nnet_tuning_results$data$decay), mean)
+  tapply(nnet_tuning_results$data$auc.test.mean, 
+         INDEX = c(nnet_tuning_results$data$size), mean)
+  
+  # Choose the optimal hyperparameters and update the learner
+  nnet_tuned     <- setHyperPars(nnet_learner, par.vals = nnet_tuning$x)
+  nnet_tuned
+  
+  # Now we train the model on the full corresponding training data 
+  model_lib$nnet <- mlr::train(nnet_tuned, task = nnet_task)
+  
+  # Prediction on current test_st data
+  pred[[i]]      <- predict(model_lib$nnet, newdata = test_st)
+}
+
+# Combine subset predictions to obtain prediction on train dataset
+yhat$nnet_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
+                    pred[[4]]$data, pred[[5]]$data)
+
+# Prediction on test data 
+yhat$nnet_test  <- predict(model_lib$nnet, newdata = test)
+\end{lstlisting}
+
+
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.14 Stacking: Gradient Boosting (level 0) Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Stacking: Gradient Boosting model (with mlr package) #######
+
+set.seed(2610)
+pred <- list()
+
+# Define dataset
+for (i in 1:5) {
+  test_st     <- train_sets[[i]]
+  train_st    <- train[-as.numeric(rownames(train_sets[[i]])), ]
+  
+  test_st     <- mlr::createDummyFeatures(test_st, target = "customer")
+  train_st    <- mlr::createDummyFeatures(train_st, target = "customer")
+  # Define task
+  gb_task     <- makeClassifTask(data = train_st[, c(vars$gb2)], 
+                                 target = "customer", 
+                                 positive = "good")
+  
+  # Define learner: gradient boosting model consisting of trees
+  gb_learner  <- makeLearner("classif.xgboost", 
+                             predict.type = "prob",
+                             par.vals = list("booster" = "gbtree", 
+                                             "silent" = 0))
+  
+  # Tuning the hyperparameter of the model
+  gb_parms    <- makeParamSet(
+    # Learning rate
+    makeDiscreteParam("eta", values = c(0.35, 0.45, 0.5, 0.55, 0.6)), 
+    # Maximum depth of a tree
+    makeIntegerParam("max_depth", lower = 3, upper = 10), 
+    # Minimum number of obs. to have per node
+    makeIntegerParam("min_child_weight", lower = 2, upper = 4),
+    # Number of iterations through data
+    makeIntegerParam("nrounds", lower = 8, upper = 16), 
+    # L2 regularization on weights
+    makeDiscreteParam("lambda", values = c(0.05, 0.1, 0.15, 0.2, 0.3)),  
+    # Minimum loss reduction
+    makeDiscreteParam("gamma", values = c(0.3, 0.4, 0.5, 0.6)), 
+    # Subsample size
+    makeDiscreteParam("subsample", values = c(0.9, 0.95, 1))
+  )  
+  
+  # Define how dense the parameters areselected from the defined ranges
+  gb_tunecontrol <- makeTuneControlGrid(resolution = 3, 
+                                        tune.threshold = FALSE)
+  
+  # Sampling strategy: cross validation
+  gb_rdesc       <- makeResampleDesc(method = "CV", 
+                                     iters = 5, 
+                                     stratify = TRUE)
+  
+  # Tuning
+  no_cores       <- detectCores() - 1 # Detect number of cores
+  
+  parallelStartSocket(no_cores, level = "mlr.tuneParams")
+  system.time(
+    gb_tuning    <- tuneParams(gb_learner, 
+                               task = gb_task,
+                               resampling = gb_rdesc,
+                               par.set = gb_parms, 
+                               control = gb_tunecontrol,
+                               measures = mlr::auc)
+  )
+  parallelStop()
+  
+  # Results for the different choices of hyperparameters
+  gb_tuning_results <- generateHyperParsEffectData(gb_tuning, 
+                                                   partial.dep = TRUE)
+  gb_tuning_results$data
+  
+  # Detailed investigation
+  tapply(gb_tuning_results$data$auc.test.mean, 
+         INDEX = c(gb_tuning_results$data$eta), mean)
+  tapply(gb_tuning_results$data$auc.test.mean, 
+         INDEX = c(gb_tuning_results$data$min_child_weight), mean)
+  tapply(gb_tuning_results$data$auc.test.mean, 
+         INDEX = c(gb_tuning_results$data$nrounds), mean)
+  tapply(gb_tuning_results$data$auc.test.mean, 
+         INDEX = c(gb_tuning_results$data$lambda), mean)
+  tapply(gb_tuning_results$data$auc.test.mean, 
+         INDEX = c(gb_tuning_results$data$gamma), mean)
+  tapply(gb_tuning_results$data$auc.test.mean, 
+         INDEX = c(gb_tuning_results$data$subsample), mean)
+  tapply(gb_tuning_results$data$auc.test.mean, 
+         INDEX = c(gb_tuning_results$data$max_depth), mean)
+  
+  # Choose the optimal hyperparameters and update the learner
+  gb_tuned      <- setHyperPars(gb_learner, par.vals = gb_tuning$x)
+  gb_tuned
+  
+  # Now we train the model on the full training data 
+  model_lib$gb2 <- mlr::train(gb_tuned, task = gb_task)
+  
+  # Prediction on current test_st data
+  pred[[i]]     <- predict(model_lib$gb2, newdata = test_st[, c(vars$gb2)])
+}
+
+# Combine subset predictions to obtain full prediction on train data
+yhat$gb2_train <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data, 
+                        pred[[4]]$data, pred[[5]]$data)
+
+# Performance measured on one-hot encoded test data 
+test_onehot  <- mlr::createDummyFeatures(test, target = "customer") 
+yhat$gb2_test  <- predict(model_lib$gb2, newdata = test_onehot[, c(vars$gb2)])
+\end{lstlisting}
+
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.15 Stacking: Random Forest (level 0) Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Stacking: Random forest model ##############################
+
+set.seed(2610)
+pred <- list()
+
+# Define dataset
+for (i in 1:5) {
+  test_st        <- train_sets[[i]]
+  train_st       <- train[-as.numeric(rownames(train_sets[[i]])), ]
+  
+  # Define task
+  rf_task        <- makeClassifTask(data = train_st[, c(vars$rf2)], 
+                                    target = "customer", 
+                                    positive = "good")
+  
+  # Define learner: decision tree
+  rf_learner     <- makeLearner("classif.randomForest",
+                                predict.type = "prob",
+                                par.vals = list("replace" = TRUE, 
+                                                "importance" = FALSE, 
+                                                "ntree" = 800)) 
+  
+  # Tuning the hyperparameters of the random forest
+  rf_parms       <- makeParamSet(
+    # Number of features selected at each node. 
+    makeIntegerParam("mtry", lower = 2, upper = 12), 
+    # Bootstrap sample size 
+    makeDiscreteParam("sampsize", values = c(30, 50, 70, 100, 130)), 
+    # Size of nodes
+    makeIntegerParam("nodesize", lower = 2, upper = 12) 
+  ) 
+  # Grid density
+  rf_tunecontrol <- makeTuneControlGrid(resolution = 7, 
+                                        tune.threshold = FALSE) 
+  
+  # Sampling strategy: cross validation
+  rf_rdesc       <- makeResampleDesc(method = "CV", 
+                                     iters = 3, 
+                                     stratify = TRUE)
+  
+  # Tuning with parallel computing
+  no_cores       <- detectCores() - 1 # Detect number of cores
+  
+  parallelStartSocket(no_cores, level = "mlr.tuneParams")
+  system.time(
+    rf_tuning    <- tuneParams(rf_learner, task = rf_task, 
+                               resampling = rf_rdesc, 
+                               par.set = rf_parms, 
+                               control = rf_tunecontrol, 
+                               measures = mlr::auc)
+  )
+  parallelStop()
+  
+  # Results for the different choices of hyperparameters
+  rf_tuning_results <- generateHyperParsEffectData(rf_tuning, 
+                                                   partial.dep = TRUE)
+  rf_tuning_results$data
+  
+  # Detailed investigation
+  tapply(rf_tuning_results$data$auc.test.mean, 
+         INDEX = c(rf_tuning_results$data$mtry), mean)
+  tapply(rf_tuning_results$data$auc.test.mean, 
+         INDEX = c(rf_tuning_results$data$sampsize), mean)
+  tapply(rf_tuning_results$data$auc.test.mean, 
+         INDEX = c(rf_tuning_results$data$nodesize), mean)
+  
+  # Choose the optimal hyperparameters and update the learner
+  rf_tuned       <- setHyperPars(rf_learner, par.vals = rf_tuning$x)
+  rf_tuned
+  
+  # Now we train the model on the full training data 
+  model_lib$rf2  <- mlr::train(rf_tuned, task = rf_task)
+  
+  # Prediction on current test_st data
+  pred[[i]]      <- predict(model_lib$rf2, newdata = test_st)
+}
+
+# Combine subset predictions to obtain prediction on full train data
+yhat$rf2_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
+                         pred[[4]]$data, pred[[5]]$data)
+
+# Performance measured on test data 
+yhat$rf2_test   <- predict(model_lib$rf2, newdata = test)
+\end{lstlisting}
+
+\begin{flushleft}
+\begin{minipage}{0.94\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.16 Stacking: Stacked Generalization Model Building}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
+\end{minipage}
+\end{flushleft}
+\begin{lstlisting}
+###### Stacked Generalization models ##############################
+
+# Generate new train and test dataset with base learners' predictions as features
+data_stacking_train <- as.data.frame(matrix(data = c(train$customer,
+                                                     yhat$dt_train$prob.good,
+                                                     yhat$logit_train$prob.good,
+                                                     yhat$nnet_train$prob.good,
+                                                     yhat$gb2_train$prob.good,
+                                                     yhat$rf2_train$prob.good),
+                                            nrow = NROW(train)), row.names = rownames(train))
+
+data_stacking_test  <- as.data.frame(matrix(data = c(test$customer,
+                                                     yhat$dt_test$data$prob.good,
+                                                     yhat$logit_test$data$prob.good,
+                                                     yhat$nnet_test$data$prob.good,
+                                                     yhat$gb2_test$data$prob.good,
+                                                     yhat$rf2_test$data$prob.good), 
+                                            nrow = NROW(test)), row.names = rownames(test))
+
+colnames(data_stacking_train) <- c("truth", "dt", 
+                                   "logit", "nnet", 
+                                   "gb", "rf")
+colnames(data_stacking_test)  <- c("truth", "dt", 
+                                   "logit", "nnet", 
+                                   "gb", "rf")
+data_stacking_train$truth     <- as.factor(data_stacking_train$truth)
+data_stacking_test$truth      <- as.factor(data_stacking_test$truth)
+
+
+# Investigate correlation of predictions and plot correlation matrix
+cormat                        <- cor(data_stacking_train[2:6,2:6])
+colnames(cormat) <- c("Decision Tree", "Logistic Regression", 
+                      "Neural Network", "Gradient Boosting", 
+                      "Random Forest")
+rownames(cormat) <- c("Decision Tree", "Logistic Regression", 
+                      "Neural Network", "Gradient Boosting", 
+                      "Random Forest")
+X11(width=6, height=6)
+corrplot(cormat, type = "lower", method = "circle", order = "hclust", 
+         col = rev(gray.colors(n = 90, start = 0.5, end = 1, gamma = 12)), 
+         tl.col = "black", tl.srt = 45,
+         addCoef.col = "black")
+
+###### Stacking Model 1: Averaging, all base learners ##############
+yhat$st1           <- as.data.frame(matrix(data = c(data_stacking_test$truth, 
+                                                    rowMeans(data_stacking_test[,-1])), 
+                                           ncol = 2))
+colnames(yhat$st1) <- c("truth", "prob.good")
+
+
+###### Stacking Model 2: Averaging, best learners ######
+yhat$st2           <- as.data.frame(matrix(data = c(data_stacking_test$truth, 
+                                                    rowMeans(data_stacking_test[,-c(1, 2, 3)])), 
+                                           ncol = 2))
+colnames(yhat$st2) <- c("truth", "prob.good")
+
+
+###### Stacking Model 3: Gradient Boosting, all base learners ##########
+set.seed(2610)
+
+control <- trainControl(method="repeatedcv", number=10, 
+                        repeats=3, savePredictions=TRUE, 
+                        classProbs=TRUE)
+algorithms <- c('glm', 'rpart', 'rf', 'nnet', 'xgbLinear')
+base <- caretList(customer~., data=train, trControl=control, 
+                  methodList=algorithms)
+
+# Stacker
+stackControl <- trainControl(method="repeatedcv", number=10, 
+                             repeats=3, savePredictions=TRUE, 
+                             classProbs=TRUE,
+                             summaryFunction = twoClassSummary)
+model_lib$st3 <- caretStack(base, method="gbm", metric="ROC", 
+                            trControl=stackControl)
+
+# Prediction on test dataset
+yhat$st3          <- matrix(c(rownames(test),
+                              test$customer,
+                              1 - predict(model_lib$st3,
+                                          newdata=test,
+                                          type="prob")),
+                            ncol = 3)
+yhat$st3 <- apply(yhat$st3, 2, function(x) as.numeric(x))
+colnames(yhat$st3) <- c("id", "truth", "prob.good")
+
+
+###### Stacking Model 4: Logistic Regression, all base learners #########
+set.seed(2610)
+
+# Stacker
+model_lib$st4 <- caretStack(base, method="glmnet",
+                            metric="ROC", trControl=stackControl)
+
+# Prediction on test dataset
+yhat$st4          <- matrix(c(rownames(test),
+                              test$customer,
+                              1 - predict(model_lib$st4,
+                                          newdata=test,
+                                          type="prob")),
+                            ncol = 3)
+yhat$st4 <- apply(yhat$st4, 2, function(x) as.numeric(x))
+colnames(yhat$st4) <- c("id", "truth", "prob.good")
+\end{lstlisting}
+
+
 
 %----------------------------------------------------------------------------------------
 %	BIBLIOGRAPHY

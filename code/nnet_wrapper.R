@@ -1,4 +1,4 @@
-###### Variable selection for the Neural Network. A wrapper approach #######
+###### Feature selection for the Neural Network. A wrapper approach #######
 
 # A model building approach with sequential forward selection is 
 # established in order to find the best subset of features. 

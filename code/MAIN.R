@@ -1,7 +1,7 @@
 ###################################################################
 # Numerical Introductory Course 2018
 # Topic: Stacking and Ensemble Modelling
-# Supervisor: Prof. Dr. Brenda L?pez Cabrera
+# Supervisor: Prof. Dr. Brenda López Cabrera
 # Student: Frederik Schreck
 ###################################################################
 

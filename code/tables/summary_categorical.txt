@@ -1,0 +1,67 @@
+% latex table generated in R 3.3.0 by xtable 1.8-2 package
+% Wed Jul 11 14:27:32 2018
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllll}
+  \hline
+ & feature & category & Count & Fraction \\ 
+  \hline
+1 & account\_status & A11 & 274 & 27.4\% \\ 
+  2 & account\_status & A12 & 269 & 26.9\% \\ 
+  3 & account\_status & A13 & 63 & 6.3\% \\ 
+  4 & account\_status & A14 & 394 & 39.4\% \\ 
+  5 & credit\_history & A30 & 40 & 4\% \\ 
+  6 & credit\_history & A31 & 49 & 4.9\% \\ 
+  7 & credit\_history & A32 & 530 & 53\% \\ 
+  8 & credit\_history & A33 & 88 & 8.8\% \\ 
+  9 & credit\_history & A34 & 293 & 29.3\% \\ 
+  10 & purpose & A40 & 234 & 23.4\% \\ 
+  11 & purpose & A41 & 103 & 10.3\% \\ 
+  12 & purpose & A410 & 12 & 1.2\% \\ 
+  13 & purpose & A42 & 181 & 18.1\% \\ 
+  14 & purpose & A43 & 280 & 28\% \\ 
+  15 & purpose & A44 & 12 & 1.2\% \\ 
+  16 & purpose & A45 & 22 & 2.2\% \\ 
+  17 & purpose & A46 & 50 & 5\% \\ 
+  18 & purpose & A48 & 9 & 0.9\% \\ 
+  19 & purpose & A49 & 97 & 9.7\% \\ 
+  20 & savings & A61 & 603 & 60.3\% \\ 
+  21 & savings & A62 & 103 & 10.3\% \\ 
+  22 & savings & A63 & 63 & 6.3\% \\ 
+  23 & savings & A64 & 48 & 4.8\% \\ 
+  24 & savings & A65 & 183 & 18.3\% \\ 
+  25 & employment\_duration & A71 & 62 & 6.2\% \\ 
+  26 & employment\_duration & A72 & 172 & 17.2\% \\ 
+  27 & employment\_duration & A73 & 339 & 33.9\% \\ 
+  28 & employment\_duration & A74 & 174 & 17.4\% \\ 
+  29 & employment\_duration & A75 & 253 & 25.3\% \\ 
+  30 & status\_sex & A91 & 50 & 5\% \\ 
+  31 & status\_sex & A92 & 310 & 31\% \\ 
+  32 & status\_sex & A93 & 548 & 54.8\% \\ 
+  33 & status\_sex & A94 & 92 & 9.2\% \\ 
+  34 & other\_debtors & A101 & 907 & 90.7\% \\ 
+  35 & other\_debtors & A102 & 41 & 4.1\% \\ 
+  36 & other\_debtors & A103 & 52 & 5.2\% \\ 
+  37 & property & A121 & 282 & 28.2\% \\ 
+  38 & property & A122 & 232 & 23.2\% \\ 
+  39 & property & A123 & 332 & 33.2\% \\ 
+  40 & property & A124 & 154 & 15.4\% \\ 
+  41 & installment\_plans & A141 & 139 & 13.9\% \\ 
+  42 & installment\_plans & A142 & 47 & 4.7\% \\ 
+  43 & installment\_plans & A143 & 814 & 81.4\% \\ 
+  44 & housing & A151 & 179 & 17.9\% \\ 
+  45 & housing & A152 & 713 & 71.3\% \\ 
+  46 & housing & A153 & 108 & 10.8\% \\ 
+  47 & job & A171 & 22 & 2.2\% \\ 
+  48 & job & A172 & 200 & 20\% \\ 
+  49 & job & A173 & 630 & 63\% \\ 
+  50 & job & A174 & 148 & 14.8\% \\ 
+  51 & telephone & A191 & 596 & 59.6\% \\ 
+  52 & telephone & A192 & 404 & 40.4\% \\ 
+  53 & foreign\_worker & A201 & 963 & 96.3\% \\ 
+  54 & foreign\_worker & A202 & 37 & 3.7\% \\ 
+  55 & customer & good & 700 & 70\% \\ 
+  56 & customer & bad & 300 & 30\% \\ 
+   \hline
+\end{tabular}
+\end{table}

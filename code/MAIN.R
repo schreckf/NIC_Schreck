@@ -1,7 +1,7 @@
 ###################################################################
 # Numerical Introductory Course 2018
 # Topic: Stacking and Ensemble Modelling
-# Supervisor: Prof. Dr. Brenda López Cabrera
+# Supervisor: Prof. Dr. Brenda L?pez Cabrera
 # Student: Frederik Schreck
 ###################################################################
 
@@ -14,6 +14,7 @@
 library("rstudioapi")
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
+library("plyr")
 library("mlr")
 library("parallelMap")
 library("parallel")
@@ -67,6 +68,25 @@ creditdata$customer           <- factor(creditdata$customer,
 
 # No problem of missing values
 apply(creditdata, 2, function(x) sum(is.na(x)))
+
+# Create summary tables for numeric and for categorical features
+numeric_vars <- lapply(Filter(is.numeric, creditdata), 
+                       function(x) rbind(mean = mean(x),
+                                         sd = sd(x),
+                                         median = median(x),
+                                         minimum = min(x),
+                                         maximum = max(x)))
+print(xtable(t(data.frame(numeric_vars))), 
+      file="tables/summary_numeric.txt")
+
+
+cat_vars <- ldply(Filter(is.factor, creditdata), 
+                  function(x) t(rbind(names(table(x)),
+                                      table(x),
+                                      paste0(prop.table(table(x))*100,"%"))))
+colnames(cat_vars) <- c("feature", "category", "Count", "Fraction")
+print(xtable(data.frame(cat_vars)), 
+      file="tables/summary_categorical.txt")
 
 # Standardize numeric features for models performance
 creditdata$duration           <- scale(creditdata$duration)

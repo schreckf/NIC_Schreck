@@ -49,6 +49,8 @@
 
 \usepackage{url} % nicer url in references
 
+\usepackage{wrapfig} %necessary to wrap figures
+
 \usepackage{flafter}
 
 \usepackage[svgnames,table,xcdraw]{xcolor}
@@ -201,7 +203,7 @@
 
 \section{Abstract}
 
-\section{Motivation (with simple example)[1page]}\label{Intro}
+\section{Motivation}\label{Intro}
 "[W]hen our imperfect judgments are aggregated in the right way, our collective intelligence is often excellent."\citep[Foreword p.XIV]{surowiecki2005wisdom}\\
 
 In accordance with the title of his book, Surowiecki refers to what he calls the \textit{wisdom of crowds}-phenomenon \cite{surowiecki2005wisdom}. He refers to the social phenomenon, that - under certain criteria - the aggregates of individual judgements can be superior to each individual judgement. While this effect can be found in the social world, it also applies to the world of statistics and machine learning. In the field of Stacking and Ensemble Modelling, research has shown different ways in which the aggregation of predictive models can deliver a more powerful model. Such Stacking and Ensemble Models currently belong to the most powerful machine learning tools and win many data science competitions (e.g. on the data science competition website \citeauthor{kaggle}). Regarding the diversity of different approaches, this paper aims to discuss and apply the most established ones in a financial application of credit risk assessment. In depth, the concept of Bagging and the Random Forest model \citep{breiman1996bagging, breiman2001random}, the concept of boosting and the Gradient Boosting model \cite{freund1996experiments, friedman2002stochastic} as well as the idea of Stacked Generalization \citep{wolpert1992stacked} will be focused on. [!motivating examples: list some financial application, where ensembling brought a big benefit, e.g. saved many costs.]
@@ -212,7 +214,7 @@ The paper's structure is as follows: In the next section, the stacking and ensem
 %Vox Populi. Nature 75, pages 450-451, 1907. 	
 %http://galton.org/essays/1900-1911/galton-1907-vox-populi.pdf
 
-\section{Literature review[3-4pages]}
+\section{Literature review}
 Ensemble learning generally refers to the combination of multiple hypotheses in order to obtain a more powerful hypothesis. In the context of machine learning, the term \textit{hypothesis} refers to the output of an algorithm, which aims to learn a target function $f(\mathbf{x})$ by using a set the features $\mathbf{x}$. Each algorithm that is used in the combination process of an ensemble learner is called a \textit{base learner}.
 
 Formally this means, that given training data $D^{train} := \{\mathbf{x}, y\} = \{(x_1, y_1), (x_2, y_2),..., (x_N, y_N)\}$, where $x_i = (x_{i1}, x_{i2},..., x_{iK})$ is the vector of feature values for each observational unit $i \in \{1, 2,..., N\}$ and $y = f(\mathbf{x})$ is the target vector that can be modelled by an unknown function $f$ of the features. Further let $K$ denote the number of features and $N$ denote the number of observations. A set of base learners of size $M$ delivers hypotheses $h_1, h_2,..., h_M \in H$ about the true function $f$, whereby $H$ denotes the hypothesis space.
@@ -256,7 +258,7 @@ Different meta learning algorithms can be used for the combination of base learn
 
 
 
-\section{Ensemble modelling in Credit Risk Classification: Emphasize application for finance/statistics[1-2pages]}
+\section{Ensemble modelling in Credit Risk Classification}
 Techniques of Stacking and Ensemble Learning are applied to predictive problems of a broad range of topics. This paper will especially focus on the application of Ensemble Learning in credit risk classification problems. Credit risk assessment and especially the its modelling is an important part in the field of financial risk management since for most small- and medium-sized banks, interests on loans are still the primary financial source \citep[p.2]{jacobson2006internal}. The banking supervision accord Basel II, that was published in 2004 and applies to member states of the European Union since 2007, restricted the buffer capital on banks and therefore makes it especially important for them to estimate the riskiness of loan applicants \citep{basel2}. For that, banks need to be able to distinguish between applicants into risky and non-risky applicants. Two opposing factors determine the banks' business rules regarding loans: On the one hand, more loans are better. On the other hand, a bank can not afford to make to many bad loans, since this would eventually lead to a collapse of the bank. A good strategy on loans will therefore be a compromise. 
 
 Applying Ensemble Learning techniques to credit risk modelling has already proven to be highly valuable. Zhu et al. \citeyear{zhu2017comparison} investigate credit risk assessment for small- and medium-sized Chinese enterprises. For that, they carry out an experiment in which they compare the predictive performance of individual machine learning methods and ensembling methods of different complexity. They find especially the more complex ensembling methods to be of outstanding discriminative accuracy \citep[p.46f.]{zhu2017comparison}. Yu et al. \citeyear{yu2008credit} succesfully apply an ensemble learner comprising six levels of stacked Neural Networks in order to evaluate credit risk at the measurement level. Hereby, they further incorporate the Bagging approach. They conclude, that such technique "provides a promising solution to credit risk analysis" \citep[p.1443]{yu2008credit}. [MAYBE SOME MORE STUDIES]
@@ -264,15 +266,19 @@ Applying Ensemble Learning techniques to credit risk modelling has already prove
 
 
 
-\section{Methodology[2pages]}
-In order to evaluate and compare the introduced stacking and ensemble models, an empirical evaluation study is conducted. The quantlets for replication of the study can be accessed in the corresponding github repository [LINK?]. In this section, the dataset used for the evaluation study is presented, the model building process is explained in detail and the metrics for evaluation are introduced.
+\section{Methodology}
+In order to evaluate and compare the introduced stacking and ensemble models, an empirical evaluation study is conducted. The quantlets for replication of the study can be accessed in the corresponding \href{https://github.com/schreckf/NIC_Schreck}{\color{DarkBlue}{github repository}}. In this section, the dataset used for the evaluation study is presented, the model building process is explained in detail and the metrics for evaluation are introduced.
 
 \subsection{Data description}
-In order to evaluate the introduced Stacking and Ensemble models, the German Credit Dataset from the UCI machine learning repository is used \citep{dataset}. The dataset classifies people as either being good or bad customers for a bank with respect to credit risk. It comprises a total number of 1000 observations and 20 features. Table [REF!] presents the summary statistic on the dataset. [some notes on the summary statistic] The dataset is partitioned in a training dataset, comprising 750 observations, and a test dataset, comprising 250 observations.
+In order to evaluate the introduced Stacking and Ensemble models, the German Credit Dataset from the UCI machine learning repository is used \citep{dataset}. The dataset classifies people as either being good or bad customers for a bank with respect to credit risk. It comprises a total number of 1000 observations and 20 features. Tables \ref{summary_numeric} and \ref{summary_categorical} in the Appendix present the summary statistics for the numerical and the categorical features in the original dataset. To ensure better model performance, the numerical data is later standardized before model building. The dataset is partitioned in a training dataset, comprising 750 observations, and a test dataset, comprising 250 observations.
+
+
+
+
 
 \subsection{Model building process}
 The model building process consists of feature selection, training , tuning and prediction. For the purpose of this study, an extensive set
-of models goes through this process: A Random Forest model and a Gradient Boosting model represent the Ensemble Learners. For the Stacked Generalization models, the Random Forest model and the Gradient Boosting model are rebuilt as level 0 generalizers. Additionally, a Decision Tree, a Neural Network as well as a Logistic Regression model are built in order to provide a diverse set of level 0 generalizers for the Stacked Generalization models. Four different such Stacking models are built by using different subsets of base learners' predictions, namely all versus a set of least correlated predictions, and by consulting different combiner algorithms, namely averaging and consulting a Random Forest model. All models deliver probabilistic predictions. 
+of models goes through this process: A Random Forest model and a Gradient Boosting model represent the Ensemble Learners. For the Stacked Generalization models, the Random Forest model and the Gradient Boosting model are rebuilt as level 0 generalizers. Additionally, a Decision Tree, a Neural Network as well as a Logistic Regression model are built in order to provide a diverse set of level 0 generalizers for the Stacked Generalization models. Four different such Stacking models are built by using different subsets of base learners' predictions. Stacking model 1 and 2 use all level 0 predictions versus a the three best level 0 predictions, respectively, and combine them via averaging. Stacking model 3 and 4 both use all level 0 predictions and combine them via a Gradient Boosting model and a Logistic Regression model, respectively. All models deliver probabilistic predictions. In order to speed up the model building, all models are constructed by use of parallelization across the cores of the computer. 
 
 Before training the model, feature selection is a critical step. The aim of feature selection is dimension reduction. Building the models on this subset may reduce their training time, reduce the variance and make the model more easily interpretable \citep{guyon2003introduction}. Since, the optimal subset of features depends on each model, a wrapper approach for feature selection is applied to each model specifically in form of wrapper approaches. Each model-specific wrapper approach starts with building the model on an intercept model and sequentially adds the next best feature (sequential foreward selection). The wrapper approach stops when no further feature can be added that increases the AUC measure (see section \ref{metrics}) by at least 0.00001 units. All wrapper approaches are run on 3-fold cross-validation in order to avoid overfitting problems (A larger number of folds leads to instabilities due to the small sample size). The subset of features identified by the model-specific wrapper approaches is subsequently used for training of the corresponding models. Since the Random Forest and the Gradient Boosting models are built as Ensemble Models and as level 0 generalizer for the Stacked Generalization models, independent wrapper approaches are applied for both versions.
 
@@ -308,26 +314,9 @@ Brier^m = \frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}^m_i)^2
 , whereby $\hat{y}^m_i$ denotes the predicted probability of model $m$ for observation $y_i$. 
 
 
-\section{Results of empirical study[2pages]}\label{results}
+\section{Results}\label{results}
 [maybe include: BiasVarianceTradeoff-graph, AUCplot with all models in]
-In the following, the results of the empirical application of Stacking and Ensemble models on credit risk classification will be presented. Table \ref{eval} shows the evaluations of all models on the test dataset with respect to the metrics AUC, Accuracy, Logarithmic Loss and Brier Score. 
-
-Since all models were tuned on the AUC, the comparison on behalf of this metric is most informative. The two Ensemble models, namely the Random Forest and the Gradient Boosting model, score highly on the AUC metric with a value of $0.78$. In terms of AUC they even outperform most level 0 generalizers, especially the Decision Tree, the Logistic Regression and the Neural Network. It can be concluded that they rank a randomly chosen correct prediction comparatively comparatively higher than a randomly chosen false prediction in comparison with the level 0 generalizers. Notably, the Gradient Boosting level 0 generalizer and the Random Forest level 0 generalizer perform a bit different when compared to their counterparts. This may origin from the decreased training dataset size due to the partitioning, which was applied for the level 0 generalizers. 
-
-The four Stacking models on top of the level 0 generalizers. Figure \ref{corrgram} shows the correlations of the predictions of the level 0 generalizers on the training data. It can be seen that the predictions of the level 0 generalizers are not correlated highly ($<|0.8|$). This already indicates that combining them may increases predictive performance.
-
-Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking model 1 and Stacking model 2 that are based on averaging predictions have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 3 and Stacking model 4 that are based on combining level 0 predictions by Gradient Boosting and Logistic Regression, respectively, even show a better AUC performance than the Random Forest and the Gradient Boosting model. 
-
-With regards to the Accuracy, the Logistic Regression and the Neural Network perform about equally well as the two standard Ensemble models. The Decision Tree is however outperformed by the standard Ensemble Models. Interestingly, all four Stacking models show relatively bad Accuracy values. Regarding the relation of Accuracy and AUC, it can be concluded that the Stacking and Ensemble models do not necessarily perform better on the cut-off threshold of $0.5$, which is implied by the Accuracy metric. However, generalizing over all possible cut-off threshold they clearly outperform most level 0 generalizers as can be seen by the corresponding AUC values. Furthermore, this indicates that the cut-off threshold of $0.5$ may not be optimal for those models.
-
-The Logarithmic Loss metric gives even more information on the particular strengths and weaknesses of the models. Contrasting the level 0 generalizers with the Random Forest and the Gradient Boosting model, the latter show a slightly smaller Logarithmic Loss. The four Stacking models however, reveal a much better performance on behalf of the Logarithmic Loss metric. It can be concluded, that the Ensemble models and even more the Stacking models do not place as high confidences on their incorrect predictions. 
-
-On the Brier Score, differences are not that present. In tendency, the Stacking and Ensemble Models perform slightly better on that metric than the level 0 generalizers. One time more, this shows that in binary classification a good model is not only defined by its errors but rather by which observations it is able to classify correctly.
-
-With regards to all calculated metrics, Stacking models are be able to capture the structure in the data best. Already a simple averaging approach, as applied for Stacking models 1 and 2, lead to increased performance. Interestingly, reducing the set of level 0 generalizers, like for Stacking model 2, does not add more value. However, it shall be noted that the restriction of input predictions could still decrease computational costs. Applying a more sophisticated level 1 combiner like Gradient Boosting or Logistic Regression, however does increase performance slightly. 
-
-[evtl.noch einen Satz dazu, dass aus den level 0 generalizern einzig das NeuralNetwork annähernd vergleichbar hohe performance brachte]
-
+In the following, the results of the empirical application of Stacking and Ensemble models on a credit risk classification problem will be presented. Table \ref{eval} shows the evaluations of all models on the test dataset with respect to the metrics AUC, Accuracy, Logarithmic Loss and Brier Score. 
 
 \begin{table}[ht]
 \centering
@@ -353,26 +342,41 @@ Random Forest & 0.78 & 0.73 & 0.52 & 0.18 \\
 \caption{Model performance on the test dataset.}\label{eval}
 \end{table}
 
+Since all models were tuned on the AUC, the comparison on behalf of this metric is most informative. The two Ensemble models, namely the Random Forest and the Gradient Boosting model, score highly on the AUC metric with a value of $0.78$. In terms of AUC they even outperform most level 0 generalizers, especially the Decision Tree, the Logistic Regression and the Neural Network. It can be concluded that they rank a randomly chosen correct prediction comparatively comparatively higher than a randomly chosen false prediction in comparison with the level 0 generalizers. Notably, the Gradient Boosting level 0 generalizer and the Random Forest level 0 generalizer perform a bit different when compared to their counterparts. This may origin from the decreased training dataset size due to the partitioning that was applied for the level 0 generalizers. 
+
+The four Stacking models were built on top of the level 0 generalizers. Figure \ref{corrgram} shows the correlations of the predictions of the level 0 generalizers on the training data. It can be seen that the predictions of the level 0 generalizers are not correlated too strongly ($<|0.8|$). This implies diversity, which already indicates that combining them may increase predictive performance.
+
 \begin{figure}[htp] \centering{
-\includegraphics[scale=1]{graphs/corrgram_version2.pdf}}
+\includegraphics[trim={1cm 3.5cm 1cm 0.6cm}, scale=0.8]{graphs/corrgram_version2.pdf}}
 \caption{Correlation plot of training dataset predictions of level 0 generalizers.}\label{corrgram}
 \end{figure}  
 
+Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking model 1 and Stacking model 2 that are based on averaging predictions have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 3 and Stacking model 4 that are based on combining level 0 predictions by Gradient Boosting and Logistic Regression, respectively, even show a better AUC performance than the Random Forest and the Gradient Boosting model. 
+
+With regards to the Accuracy, the Logistic Regression and the Neural Network perform about equally well as the two Ensemble models. The Decision Tree is however outperformed by the Random Forest and the Gradient Boosting model. Interestingly, all four Stacking models show relatively bad Accuracy values. Regarding the relation of Accuracy and AUC, it can be concluded that the Stacking and Ensemble models do not necessarily perform better on the cut-off threshold of $0.5$, which is implied by the Accuracy metric. However, generalizing over all possible cut-off threshold they clearly outperform most level 0 generalizers as can be seen by the corresponding AUC values. Furthermore, this indicates that the standard cut-off threshold for probabilistic predictions of $0.5$ may not be optimal for those models.
+
+The Logarithmic Loss metric gives even more information on the particular strengths and weaknesses of the models. Contrasting the level 0 generalizers with the Random Forest and the Gradient Boosting model, the latter show a slightly smaller Logarithmic Loss. The four Stacking models however, reveal a much better performance on behalf of the Logarithmic Loss metric. It can be concluded, that the Ensemble models and even more the Stacking models do not place as high confidences on their incorrect predictions. 
+
+Regarding the Brier Score, differences are not that present. In tendency, the Stacking and Ensemble Models perform slightly better on that metric than the level 0 generalizers. One time more, this shows that in binary classification a good model is not only defined by its errors but rather by which observations it is able to classify correctly.
+
+With regards to all calculated metrics, Stacking models are be able to capture the structure in the data most effective. Already a simple averaging approach, as applied for Stacking models 1 and 2, leads to increased performance. Interestingly, reducing the set of level 0 generalizers, like for Stacking model 2, does not add more value. Nevertheless, it shall be noted that such restriction of input predictions could still decrease computational costs. Applying a more sophisticated level 1 combiner like Gradient Boosting or Logistic Regression, does increase performance slightly as can be seen by Stacking models 3 and 4.
+
+[evtl.noch einen Satz dazu, dass aus den level 0 generalizern einzig das NeuralNetwork annähernd vergleichbar hohe performance brachte]
 
 
-\section{Conclusion[1page]}
-This paper aimed to discuss and evaluate Stacking and Ensemble models in a financial application of credit risk assessment. Focus was set on introducing the concepts of Bagging, Boosting and Stacked Generalization as well as the corresponding Random Forest and Gradient Boosting models. Thereby, it was explained how Bagging and Boosting increase performance by decreasing variance of base learners and by decreasing bias of base learners, respectively. The Stacked Generalization or Stacking model finds the optimal way to combine the specific strengths of level 0 generalizers in order to increase predictive performance.
 
-A broad set of different Stacking and Ensemble models as well as standard machine learning models was applied and evaluated to a classification problem of credit risk assessment. The Random Forest and Gradient Boosting model outperformed standard machine learning models on behalf of the calculated metrics. Further, all four Stacked Generalization approaches were able to establish a higher performance on AUC, Logarithmic Loss and Brier Score. With regards to Accuracy metric, they performed worse, suggesting the metric-implied cut-off threshold of $0.5$ being sub-optimal. Even a simple combiner algorithm like averaging could increase performance, while more complex combiner algorithms performed better. Restricting the subset of input predictions seems to be unnecessary with regards to performance issues.
 
-In the context of credit risk assessment in this study, Stacking and Ensemble models could show their comparative strengths when it comes to prediction. Due to their complexity, their computation needs much computational resources. In the context of ___lization, current research focusses on possibilities beyond parallelization to restrict computational costs. A further problem of such models is absence the of proven statistical properties like unbiasedness, consistency or asymptotic theory for construction of confidence intervals. For using machine learning models for research purposes, such properties are however quite important. Only recently, the field of \textit{machine learning in economics} emerged, where the construction of such properties is aimed at (CITE ATHEY stuff).
 
-[NOTES: mention that I used parallelization in model building!]
-\begin{itemize}
-\item advantages of bagging models and potential problems (e.g. higher computational costs)
-\item conclusions about chosen problem of analysis
-\item Further research	
-\end{itemize}
+
+
+
+\section{Conclusion}
+This paper aimed to discuss and evaluate Stacking and Ensemble models in a financial application of credit risk assessment. Focus was set on introducing the concepts of Bagging, Boosting and Stacked Generalization as well as the corresponding Random Forest and Gradient Boosting models. It was explained how Bagging and Boosting increase performance by decreasing generalization variance of base learners and by decreasing generalization bias of base learners, respectively. Moreover, the Stacked Generalization or Stacking model seeks for the optimal way to combine the specific strengths of level 0 generalizers in order to increase predictive performance even more.
+
+A broad set of different Stacking and Ensemble models as well as standard machine learning models was applied and evaluated to a classification problem of credit risk assessment. The Random Forest model and Gradient Boosting model outperformed standard machine learning models on behalf of the calculated metrics. Furthermore, all four Stacked Generalization approaches were able to establish a higher performance on AUC, Logarithmic Loss and Brier Score. With regards to Accuracy metric, they performed worse, suggesting the metric-implied cut-off threshold of $0.5$ being sub-optimal. Even a simple combiner algorithm like averaging could increase performance, while more complex combiner algorithms performed better. Restricting the subset of input predictions seems to be ineffective with regards to performance issues.
+
+In this study's context of credit risk assessment, Stacking and Ensemble models could show their comparative strengths when it comes to prediction of a binary outcome. Further research could however evaluate their performance for regression problems in a similar financial context. Beyond that, Stacking and Ensemble models need much computational resources due to their complexity. In the context of \textit{scalability}, current research tests ideas that restrict computational costs, e.g. by adaptive parallelization \citep{li2014communication} or by improving certain methods that are like stochastic gradient descent \citep{bottou2012stochastic}. A further problem of such models is absence of proven statistical properties like unbiasedness, consistency or asymptotic theory for construction of confidence intervals. In order to use machine learning models for research purposes, such properties are however necessary. Only recently, the field of \textit{machine learning in economics} emerged, where the construction of such properties is aimed at (see \cite{athey2017impact} ,\citeauthor{wager2018est} \hyperlink{wager2018est}{(\color{DarkBlue}{in press})}).  
+
 
 
 
@@ -382,9 +386,122 @@ In the context of credit risk assessment in this study, Stacking and Ensemble mo
 %----------------------------------------------------------------------------------------
 %	APPENDIX
 %----------------------------------------------------------------------------------------
+\newpage
 \appendix
-\section{Appendix-part1}
+\section{Appendix - Summary Tables}
 
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrr}
+  \hline
+ & Mean & Std. Dev. & Median & Minimum & Maximum \\ 
+  \hline
+Duration & 20.90 & 12.06 & 18.00 & 4.00 & 72.00 \\ 
+  Amount & 3271.26 & 2822.74 & 2319.50 & 250.00 & 18424.00 \\ 
+  Installment Rate & 2.97 & 1.12 & 3.00 & 1.00 & 4.00 \\ 
+  Residence Duration & 2.85 & 1.10 & 3.00 & 1.00 & 4.00 \\ 
+  Age & 35.55 & 11.38 & 33.00 & 19.00 & 75.00 \\ 
+  Number of Credits & 1.41 & 0.58 & 1.00 & 1.00 & 4.00 \\ 
+  Number of Liable People & 1.16 & 0.36 & 1.00 & 1.00 & 2.00 \\ 
+   \hline
+\end{tabular}
+\caption{Summary statistics for numerical features in the German Credit Dataset.}\label{summary_numeric}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\begin{tabular}{rllll}
+  \hline
+Feature & Category & Count & Fraction \\ 
+  \hline
+Customer Classification & good & 700 & 70\% \\ 
+(Outcome Feature) &bad & 300 & 30\% \\
+\hline
+Account Status & x < 0 DM & 274 & 27.4\% \\ 
+ & 0 DM < x < 200 DM & 269 & 26.9\% \\ 
+ & x >= 200 DM & 63 & 6.3\% \\ 
+& no account & 394 & 39.4\% \\ 
+\hline
+Credit History & no credits taken/all paid back duly & 40 & 4\% \\ 
+& all credits at this bank paid back duly & 49 & 4.9\% \\ 
+ & existing credits paid back duly till now & 530 & 53\% \\ 
+ & delay in paying off in the past & 88 & 8.8\% \\ 
+ & critical account & 293 & 29.3\% \\ 
+\hline
+ Purpose & car (new) & 234 & 23.4\% \\ 
+ & car(used & 103 & 10.3\% \\ 
+&furniture/equipment & 12 & 1.2\% \\ 
+&radio/television & 181 & 18.1\% \\ 
+& domestic appliances & 280 & 28\% \\ 
+ &repairs & 12 & 1.2\% \\ 
+ &education & 22 & 2.2\% \\ 
+ &vacation & 50 & 5\% \\ 
+ &retraining & 9 & 0.9\% \\ 
+ &business & 97 & 9.7\% \\ 
+\hline
+ Savings & x < 100 DM & 603 & 60.3\% \\ 
+&100 <= x <  500 DM & 103 & 10.3\% \\ 
+&500 <= x < 1000 DM & 63 & 6.3\% \\ 
+&x >= 1000 DM & 48 & 4.8\% \\ 
+&unknown/no savings & 183 & 18.3\% \\ 
+\hline\\
+(continued on next page) & & & 
+\end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\begin{tabular}{rllll}
+ (continued)& & &\\ \\
+\hline
+Feature & Category & Count & Fraction \\ 
+  \hline
+ Employment Duration & unemployed & 62 & 6.2\% \\ 
+&x < 1 year & 172 & 17.2\% \\ 
+&1  <= x < 4 years & 339 & 33.9\% \\ 
+&4  <= x < 7 years & 174 & 17.4\% \\ 
+&x >= 7 years & 253 & 25.3\% \\ 
+\hline
+Status and Sex & male: divorced/separated & 50 & 5\% \\ 
+&female: divorced/separated/married & 310 & 31\% \\ 
+&male: single & 548 & 54.8\% \\ 
+&male: married/widowed & 92 & 9.2\% \\ 
+\hline
+ Other Debtors & none & 907 & 90.7\% \\ 
+&co-applicant & 41 & 4.1\% \\ 
+&guarantor & 52 & 5.2\% \\ 
+\hline
+  Property & real estate & 282 & 28.2\% \\ 
+&savings agreement/life insurance & 232 & 23.2\% \\ 
+&car or other& 332 & 33.2\% \\ 
+&unknown/no property & 154 & 15.4\% \\ 
+\hline
+ Other Installment Plans & bank & 139 & 13.9\% \\ 
+&stores & 47 & 4.7\% \\ 
+&none & 814 & 81.4\% \\ 
+\hline
+Housing & rent & 179 & 17.9\% \\ 
+&own & 713 & 71.3\% \\ 
+&for free & 108 & 10.8\% \\ 
+\hline
+ Job & unemployed/ unskilled  - non-resident & 22 & 2.2\% \\ 
+ & unskilled - resident & 200 & 20\% \\ 
+ &skilled employee / official & 630 & 63\% \\ 
+ &management/self-employed/officer & 148 & 14.8\% \\ 
+ \hline
+Telephone & none & 596 & 59.6\% \\ 
+&yes & 404 & 40.4\% \\ 
+ \hline
+Foreign Worker & yes & 963 & 96.3\% \\ 
+&no & 37 & 3.7\% \\ 
+    \hline
+\end{tabular}
+\caption{Summary statistics for categorical features in the German Credit Dataset.}\label{summary_categorical}
+\end{table}
+
+
+
+\newpage
 \section{Appendix-part2}
 
 %----------------------------------------------------------------------------------------

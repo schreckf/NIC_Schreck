@@ -1,2 +1,4 @@
 \select@language {english}
 \contentsline {table}{\numberline {1}{\ignorespaces Model performance on the test dataset.\relax }}{9}{table.caption.8}
+\contentsline {table}{\numberline {2}{\ignorespaces Summary statistics for numerical features in the German Credit Dataset.\relax }}{13}{table.caption.10}
+\contentsline {table}{\numberline {3}{\ignorespaces Summary statistics for categorical features in the German Credit Dataset.\relax }}{14}{table.caption.12}

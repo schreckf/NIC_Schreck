@@ -102,6 +102,14 @@
 
 %\usepackage{icomma}
 
+\usepackage[plain]{algorithm} % to insert algorithms and make list of algorithms
+\floatname{algorithm}{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}} % change names of algorithms
+\newcommand{\algorithmname}{Listing}
+%\def\NoNumber#1{{\def\alglinenumber##1{}\State #1}\addtocounter{ALG@line}{-1}} % removes algorithm numbering
+%\renewcommand{\thealgorithm}{} % removes algorithm numbering
+\renewcommand{\listalgorithmname}{List of Quantlets} % change title of list of algorithms
+
+
 %\newcommand{\Quantlet}[2]{\includegraphics[scale = 0.05]{q.pdf}\,\href{#2}{#1}}
 
 \title{Stacking algorithm and ensemble modeling}
@@ -148,7 +156,7 @@
 	\center
 	\HRule\\[0.4cm]
 	
-	{\LARGE\bfseries Stacking Algorithm and Ensemble Modelling}\\[0.05cm] % Title of your document
+	{\Large\bfseries Stacking Algorithm and Ensemble Modelling}\\[0.05cm] % Title of your document
 		\HRule\\[1.5cm]
 	
 	%------------------------------------------------
@@ -191,6 +199,8 @@
 
 \listoffigures
 \listoftables
+\listofalgorithms
+
 \thispagestyle{empty}
 \clearpage
 \setcounter{page}{1}
@@ -505,14 +515,10 @@ Foreign Worker & yes & 963 & 96.3\% \\
 \clearpage
 
 \section{Appendix - Code}
+\begin{algorithm}
+\caption[Quantlet 1: Main file]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Main file}}}
+\end{algorithm}
 
-\begin{minipage}{0.95\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.1 Main file}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\\
 \begin{lstlisting}
 ###################################################################
 # Numerical Introductory Course 2018
@@ -1049,14 +1055,10 @@ legend(xy.coords(0.6,0.57), legend = c("Random Forest",
        
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.2 Gradient Boosting Model Feature Selection}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+\begin{algorithm}
+\caption[Quantlet 2: Gradient Boosting Model Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Gradient Boosting Model Feature Selection}}}
+\end{algorithm}
+
 \begin{lstlisting}
 ###### Variable selection for the Gradient Boosting model. A wrapper approach #####
 
@@ -1098,14 +1100,12 @@ analyzeFeatSelResult(gb_sfeats)
 vars$gb          <- c("customer", gb_sfeats$x)
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.3 Random Forest Model Feature Selection}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 3: Random Forest Model Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Random Forest Model Feature Selection}}}
+\end{algorithm}
+
+
 \begin{lstlisting}
 ###### Feature selection for the Random Forest model. A wrapper approach #####
 
@@ -1143,14 +1143,10 @@ analyzeFeatSelResult(rf_sfeats)
 vars$rf <- c("customer", rf_sfeats$x)
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.4 Stacking: Decision Tree (level 0) Feature Selection}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 4: Stacking: Decision Tree (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Decision Tree (level 0) Feature Selection}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Decision Tree model. A wrapper approach #####
 
@@ -1188,14 +1184,10 @@ analyzeFeatSelResult(dt_sfeats)
 vars$dt <- c("customer", dt_sfeats$x)
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.5 Stacking: Logistic Regression (level 0) Feature Selection}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 5: Logistic Regression (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Logistic Regression (level 0) Feature Selection}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Logit model. A wrapper approach #####
 
@@ -1232,14 +1224,10 @@ analyzeFeatSelResult(logit_sfeats)
 vars$logit <- c("customer", logit_sfeats$x)
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.6 Stacking: Neural Network (level 0) Feature Selection}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 6: Stacking: Neural Network (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Neural Network (level 0) Feature Selection}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Neural Network. A wrapper approach #######
 
@@ -1277,15 +1265,9 @@ analyzeFeatSelResult(nnet_sfeats)
 vars$nnet <- c("customer", nnet_sfeats$x)
 \end{lstlisting}
 
-
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.7 Stacking: Gradient Boosting (level 0) Feature Selection}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+\begin{algorithm}
+\caption[Quantlet 7: Gradient Boosting (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Gradient Boosting (level 0) Feature Selection}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Gradient Boosting model. A wrapper approach #####
 
@@ -1324,15 +1306,9 @@ vars$gb2 <- c("customer", gb_sfeats$x)
 \end{lstlisting}
 
 
-
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.8 Stacking: Random Forest (level 0) Feature Selection}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+\begin{algorithm}
+\caption[Quantlet 8: Stacking: Random Forest (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Random Forest (level 0) Feature Selection}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Random Forest model. A wrapper approach #####
 
@@ -1370,14 +1346,10 @@ analyzeFeatSelResult(rf_sfeats)
 vars$rf2 <- c("customer", rf_sfeats$x)
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.9 Random Forest Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 9: Random Forest Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Random Forest Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ############### Random forest model ###############################
 
@@ -1445,14 +1417,10 @@ yhat$rf      <- predict(model_lib$rf, newdata = test)
 \end{lstlisting}
 
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.10 Gradient Boosting Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 10: Gradient Boosting Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Gradient Boosting Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Gradient Boosting model (with mlr package) #################
 
@@ -1542,14 +1510,10 @@ test_onehot  <- mlr::createDummyFeatures(test, target = "customer")
 yhat$gb      <- predict(model_lib$gb, newdata = test_onehot[, c(vars$gb)])
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.11 Stacking: Decision Tree (level 0) Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 11: Stacking: Decision Tree (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Decision Tree (level 0) Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ################ Decision tree model ##############################
 
@@ -1637,15 +1601,9 @@ yhat$dt_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
 yhat$dt_test   <- predict(model_lib$dt, newdata = test)
 \end{lstlisting}
 
-
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.12 Stacking: Logistic Regression (level 0) Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+\begin{algorithm}
+\caption[Quantlet 11: Stacking: Logistic Regression (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Logistic Regression (level 0) Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Logit model ################################################
 
@@ -1683,15 +1641,9 @@ yhat$logit_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
 yhat$logit_test   <- predict(model_lib$logit, newdata = test)
 \end{lstlisting}
 
-
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.13 Stacking: Neural Network (level 0) Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+\begin{algorithm}
+\caption[Quantlet 12: Stacking: Neural Network (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Neural Network (level 0) Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Neural Network #############################################
 
@@ -1776,15 +1728,9 @@ yhat$nnet_test  <- predict(model_lib$nnet, newdata = test)
 \end{lstlisting}
 
 
-
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.14 Stacking: Gradient Boosting (level 0) Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+\begin{algorithm}
+\caption[Quantlet 13: Stacking: Gradient Boosting (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Gradient Boosting (level 0) Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Stacking: Gradient Boosting model (with mlr package) #######
 
@@ -1891,15 +1837,9 @@ test_onehot  <- mlr::createDummyFeatures(test, target = "customer")
 yhat$gb2_test  <- predict(model_lib$gb2, newdata = test_onehot[, c(vars$gb2)])
 \end{lstlisting}
 
-
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.15 Stacking: Random Forest (level 0) Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+\begin{algorithm}
+\caption[Quantlet 14: Stacking: Random Forest (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Random Forest (level 0) Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Stacking: Random forest model ##############################
 
@@ -1986,14 +1926,10 @@ yhat$rf2_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
 yhat$rf2_test   <- predict(model_lib$rf2, newdata = test)
 \end{lstlisting}
 
-\begin{flushleft}
-\begin{minipage}{0.94\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{B.16 Stacking: Stacked Generalization Model Building}}
-\end{minipage}
-\begin{minipage}{0.05\textwidth}
-\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.1]{graphs/qletlogo.pdf}}
-\end{minipage}
-\end{flushleft}
+
+\begin{algorithm}
+\caption[Quantlet 15: Stacking: Stacked Generalization Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Stacked Generalization Model Building}}}
+\end{algorithm}
 \begin{lstlisting}
 ###### Stacked Generalization models ##############################
 

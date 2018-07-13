@@ -1,0 +1,16 @@
+\contentsline {algorithm}{\numberline {1}{\ignorespaces Quantlet 1: Main file}}{15}{algorithm.1}
+\contentsline {algorithm}{\numberline {2}{\ignorespaces Quantlet 2: Gradient Boosting Model Feature Selection}}{24}{algorithm.2}
+\contentsline {algorithm}{\numberline {3}{\ignorespaces Quantlet 3: Random Forest Model Feature Selection}}{25}{algorithm.3}
+\contentsline {algorithm}{\numberline {4}{\ignorespaces Quantlet 4: Stacking: Decision Tree (level 0) Feature Selection}}{25}{algorithm.4}
+\contentsline {algorithm}{\numberline {5}{\ignorespaces Quantlet 5: Logistic Regression (level 0) Feature Selection}}{26}{algorithm.5}
+\contentsline {algorithm}{\numberline {6}{\ignorespaces Quantlet 6: Stacking: Neural Network (level 0) Feature Selection}}{27}{algorithm.6}
+\contentsline {algorithm}{\numberline {7}{\ignorespaces Quantlet 7: Gradient Boosting (level 0) Feature Selection}}{28}{algorithm.7}
+\contentsline {algorithm}{\numberline {8}{\ignorespaces Quantlet 8: Stacking: Random Forest (level 0) Feature Selection}}{28}{algorithm.8}
+\contentsline {algorithm}{\numberline {9}{\ignorespaces Quantlet 9: Random Forest Model Building}}{29}{algorithm.9}
+\contentsline {algorithm}{\numberline {10}{\ignorespaces Quantlet 10: Gradient Boosting Model Building}}{30}{algorithm.10}
+\contentsline {algorithm}{\numberline {11}{\ignorespaces Quantlet 11: Stacking: Decision Tree (level 0) Model Building}}{32}{algorithm.11}
+\contentsline {algorithm}{\numberline {12}{\ignorespaces Quantlet 11: Stacking: Logistic Regression (level 0) Model Building}}{33}{algorithm.12}
+\contentsline {algorithm}{\numberline {13}{\ignorespaces Quantlet 12: Stacking: Neural Network (level 0) Model Building}}{34}{algorithm.13}
+\contentsline {algorithm}{\numberline {14}{\ignorespaces Quantlet 13: Stacking: Gradient Boosting (level 0) Model Building}}{36}{algorithm.14}
+\contentsline {algorithm}{\numberline {15}{\ignorespaces Quantlet 14: Stacking: Random Forest (level 0) Model Building}}{37}{algorithm.15}
+\contentsline {algorithm}{\numberline {16}{\ignorespaces Quantlet 15: Stacking: Stacked Generalization Model Building}}{39}{algorithm.16}

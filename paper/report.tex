@@ -28,7 +28,7 @@
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
-\fancyhead[L]{}
+\fancyhead[L]{Stacking Algorithm and Ensemble Modeling}
 \fancyhead[C]{}
 \fancyhead[R]{\nouppercase{\leftmark}}
 \fancyfoot[L]{}
@@ -99,6 +99,7 @@
 \usepackage[colorlinks, filecolor=magenta, citecolor=DarkBlue, linkcolor=black, urlcolor=blue]{hyperref}
 
 \usepackage{wrapfig}
+
 
 %\usepackage{icomma}
 
@@ -212,14 +213,31 @@
 %%
 %%
 
-\section{Abstract}
+\begin{minipage}{1\textwidth}
+\vspace{1.5cm}
+\end{minipage}
+
+\begin{center}
+{\LARGE Stacking Algorithm and Ensemble Modelling}\\
+\vspace{0.5cm}
+{\large Frederik Schreck}\\
+\vspace{0.5cm}
+{\large\today}
+\end{center}
+\vspace{1cm}
+
+
+\begin{abstract}
+Stacking and Ensemble models currently belong to the most powerful machine learning tools. In depth, this paper introduces and discusses the most important concepts of Stacking and Ensembling. In order to assess their predictive performance in the context of credit risk assessment, a empirical evaluation study is realized on behalf of the German Credit Dataset. Results show that Ensembling models, including a Random Forest and a Gradient Boosting model, outperform standard machine learning models on a broad set of evaluation metrics. Different versions of Stacked Generalization models were able to establish better predictions than their level 0 generalizers. Thereby, more sophisticated Stacking algorithms could establish even better results. The restriction of the subset of input predictions for the Stacked Generalization models was ineffective with regards to performance issues. The results strongly reinforce the value of Stacking and Ensembling strategies for prediction in credit risk assessment problems.
+\end{abstract}
 
 \section{Motivation}\label{Intro}
-"[W]hen our imperfect judgements are aggregated in the right way, our collective intelligence is often excellent."\citep[Foreword p.XIV]{surowiecki2005wisdom}\\
+"[W]hen our imperfect judgements are aggregated in the right way, our collective intelligence is often excellent." \citep[Foreword p.XIV]{surowiecki2005wisdom}\\
 
-In accordance with the title of his book, Surowiecki refers to what he calls the \textit{wisdom of crowds}-phenomenon \citep{surowiecki2005wisdom}. By that, he refers to the social phenomenon, that the aggregates of individual judgements - under certain criteria - can be superior to each individual judgement alone. While this effect can be found in the social world, it also applies to the world of statistics and machine learning. In the field of Stacking and Ensemble modelling, research has shown different ways in which the aggregation of predictive models can deliver a more powerful model. Such Stacking and Ensemble models currently belong to the most powerful machine learning tools and win many data science competitions (see e.g. the data science competition website \citeauthor{kaggle}). In the context of credit risk assessment, where banks need to estimate credit worthiness of potential customers, accurate predictions are particularly valuable. In comparison to alternative predictive models, Stacking and Ensemble methods have shown to be highly effective \citep{yu2008credit, zhu2017comparison}. In depth, this paper will introduce the concept of Bagging and the Random Forest model \citep{breiman1996bagging, breiman2001random}, the concept of boosting and the Gradient Boosting model \cite{freund1996experiments, friedman2002stochastic} as well as the idea of Stacked Generalization \citep{wolpert1992stacked} will be focused on. 
 
-The paper's structure is as follows: In the coming section, the Stacking and Ensemble models shall be introduced and reviewed with regards to their state of research. Subsequently, the value of applying these models in the context of credit risk classification is discussed briefly. In the following, the empirical evaluation study of applying the introduced Stacking and Ensemble models in such context is prepared. For that, firstly the credit risk data is presented, secondly the model building process is outlined and thirdly the metrics for model evaluation are introduced. In the next section, results of the empirical evaluation study are presented in detail. Finally, conclusions about comparative advantages and shortfalls of the models in the context of credit risk classification are drawn and needs of further research are identified.
+\noindent In accordance with the title of his book, Surowiecki refers to what he calls the \textit{wisdom of crowds}-phenomenon \citep{surowiecki2005wisdom}. This social phenomenon describes that - under certain fulfilled criteria - the aggregates of individual judgements are superior to each individual judgement alone. While this effect can be found in the social world, it also applies to the world of statistics and machine learning. In the field of Stacking and Ensemble modelling, research has shown different ways in which the aggregation of predictive models can deliver a more powerful model. Such Stacking and Ensemble models currently belong to the most powerful machine learning tools as can be seen by their success in data science competitions (e.g. on the data science competition website \citeauthor{kaggle}). In the context of credit risk assessment, where banks need to estimate credit worthiness of potential customers, accurate predictions are particularly valuable. In comparison to alternative predictive models, Stacking and Ensemble methods have shown to be highly effective in this area \citep{yu2008credit, zhu2017comparison}. The field of existing methods is however large. In depth, this paper will therefore introduce and apply the most important concepts, namely Bagging and the related Random Forest model \citep{breiman1996bagging, breiman2001random}, the concept of boosting and the related Gradient Boosting model \cite{freund1996experiments, friedman2002stochastic} as well as the idea of Stacked Generalization \citep{wolpert1992stacked}. 
+
+The paper's structure is as follows: In the coming section, the different concepts of Stacking and Ensembling shall be introduced and their strengths and shortfalls will be discussed. In the following, the value of applying these models in the context of credit risk classification is discussed briefly. Subsequently, an empirical evaluation study that aims at applying the introduced Stacking and Ensemble models in such financial context is prepared. For that, firstly the credit risk data is presented, secondly the model building process is outlined and thirdly the metrics for model evaluation are introduced. In the next section, results of the empirical evaluation study are presented in detail. Finally, conclusions about comparative advantages and shortfalls of the models in the context of credit risk classification are drawn and needs of further research are identified.
 
 %The paper in which Francis Galton describes his findings on the wisdom of the crowd:
 %Vox Populi. Nature 75, pages 450-451, 1907. 	
@@ -228,88 +246,84 @@ The paper's structure is as follows: In the coming section, the Stacking and Ens
 \section{Stacking and Ensembling Modelling}
 Ensemble learning generally refers to the combination of multiple hypotheses in order to obtain a more powerful hypothesis. In the context of machine learning, the term \textit{hypothesis} refers to the output of an algorithm, which aims to learn a target function $f(\mathbf{x})$ by using a set the features $\mathbf{x}$. Each algorithm that is used in the combination process of an ensemble learner is called a \textit{base learner}.
 
-Formally this means, that given training data $D^{train} := \{(x_1, y_1), (x_2, y_2),..., (x_N, y_N)\}$, where $x_i = (x_{i1}, x_{i2},..., x_{iK})$ is the vector of feature values for each observational unit $i \in \{1, 2,..., N\}$ and $y = f(\mathbf{x})$ is the target vector that can be modelled by an unknown function $f$ of the features. Further let $K$ denote the number of features and $N$ denote the number of observations. Then, a set of base learners of size $M$ delivers hypotheses $h_1, h_2,..., h_M \in H$ about the true function $f$, whereby $H$ denotes the hypothesis space.
+Formally, this means that given training data $D^{train} := \{(x_1, y_1), (x_2, y_2),..., (x_N, y_N)\}$, where $x_i = (x_{i1}, x_{i2},..., x_{iK})$ is the vector of feature values for each observational unit $i \in \{1, 2,..., N\}$, $y = f(\mathbf{x})$ is the target vector that can be modelled by an unknown function $f$ of the features. Further let $K$ denote the number of features and $N$ denote the number of observations. Then, a set of base learners of size $M$ delivers hypotheses $h_1, h_2,..., h_M \in H$ about the true function $f$, whereby $H$ denotes the hypothesis space.
 
-Different ways to combine the hypotheses of base learners exist. Generally, ensemble learning is most effective when combining diverse base learners. Hereby, diversity refers to error diversity, implying that the different base learners have different strengths in capturing structure in the data. \cite{brown2005diversity} show that the combination methods of ensemble learning strategies enhance such diversity. Furthermore, practical applications of ensembling techniques show, that Stacking and Ensemble models enhance diversity amongst their base learners by requiring different algorithms, hyperparameter settings, feature subsets and training sets for their base learners \citep{online2017stacking}. 
+Different ways to combine the hypotheses of base learners exist. Generally, ensemble learning is most effective when diverse base learners are combined. Hereby, diversity refers to error diversity, implying that the different base learners have different strengths in capturing structure in the data. \cite{brown2005diversity} show that the combination methods of ensemble learning strategies enhance such diversity. Furthermore, practical applications of ensembling techniques show, that Stacking and Ensemble models enhance diversity amongst their base learners by requiring different algorithms, different hyperparameter settings, different feature subsets and different training sets for their base learners \citep{online2017stacking}. 
 
-In the following, different techniques to combine the hypotheses of base learners will be introduced and their state of research is reviewed. 
+In the following, different techniques to combine the hypotheses of base learners will be introduced and their specific strengths and shortfalls are identified. 
 
 \subsection{Bagging and the Random Forest model}
-The idea of Bagging was originally proposed by \cite{breiman1996bagging}. The term abbreviates bootstrap aggregating and refers to a manipulation of the training data: Each base learner $m$ is fitted using a random sample $D^{train}_m$ that is uniformly drawn from the training data $D^{train}$. Notably, $D^{train}_m$ may contain duplicates of certain observational units, since sampling is done with replacement. The hypotheses of the base learners is then aggregated by averaging in case of a regression problem or majority voting in case of a classification problem. 
+The idea of Bagging was originally proposed by \cite{breiman1996bagging}. The term abbreviates bootstrap aggregating which refers to a manipulation of the training data: Each base learner $m$ is fitted on a uniformly drawn random sample $D^{train}_m$ from the training data $D^{train}$. Notably, $D^{train}_m$ may contain duplicates of certain observational units, since sampling is done with replacement. The hypotheses of the base learners is then aggregated by averaging in case of a regression problem or majority voting in case of a classification problem. 
 
 In so far, bagging is a meta-algorithm that can be used with every type of base learner algorithm. However, especially unstable base learners that are sensitive to data manipulation should be combined \citep[p.124]{breiman1996bagging}. Breiman therefore recommends to use Neural Networks, Decision Trees	or subset selection in Linear Regression. By building the base learners on different subsets of the data, the bagging procedure enhances diversity amongst them and can lead to "substantial gains in accuracy" \citep[p.123]{breiman1996bagging}.
 
-The Random Forest model uses the bagging principle and supplements it by the random subspace approach \citep{ho1998random, breiman2001random}. This approach builds each base learner on a random sample with replacement of all available features. This implies a decorrelation of the hypotheses of the set of base learners used for ensembling. For Random Forests, Decision Trees are the preferred base learner algorithm \citep[cp.][]{breiman2001random}.
+The Random Forest model uses the bagging principle and supplements it with the random subspace approach \citep{ho1998random, breiman2001random}. This approach builds each base learner on a random sample with replacement of all available features, which implies a decorrelation of the base learners' hypotheses. For Random Forests, the Decision Trees is the preferred base learner algorithm \citep[cp.][]{breiman2001random}.
 
-A big strength of the Random Forest is the reduction in prediction variance compared to single Decision Trees, which stems from the diversification. Clearly, the computational costs of a Random Forest can be much higher than of a single Tree, since computational time increases linearly to the number of consulted Trees. Due to the independent building of individual base learners, Random Forest model building can be accelerated by parallelization on different cores of the computer. Breiman further notes that Random Forests give "useful internal estimates of error, strength, correlation and variable importance" \citep[p.10]{breiman2001random}. Hence, even though decision rules of Random Forests are less transparent than those of single Decision Trees due to the sampling, relative variable importances can be calculated as a by-product by randomly permuting features and examining their influence on the prediction. As a single weakness, growing a large random forest can be computationally expensive. Breiman proves that the generalization error of the ensemble converges almost surely to a limit with increasing number of Trees \citep[p.30]{breiman2001random}. In practice, the number of Trees is however restricted by the amount of available computational resources.
+A big strength of the Random Forest is the reduction in prediction variance compared to single Decision Trees, which stems from the diversification. Clearly, the computational costs of a Random Forest can be much higher than those of a single Tree, since computational time increases linearly to the number of consulted Trees. Due to the independent building of the individual base learners, Random Forest model building can be accelerated by parallelization on different cores of the computer. Breiman further notes that Random Forests give "useful internal estimates of error, strength, correlation and variable importance" \citep[p.10]{breiman2001random}. Hence, even though decision rules of Random Forests are less transparent than those of single Decision Trees due to the sampling, relative variable importances can be calculated as a by-product by randomly permuting features and examining their influence on the prediction. As a single weakness, growing a large random forest can be computationally expensive. Breiman proves that the generalization error of the ensemble converges almost surely to a limit with increasing number of Trees \citep[p.30]{breiman2001random}. In practice, the number of Trees is however restricted by the amount of available computational resources.
 
 % Benchmark studies OR/AND Weiterentwicklungen des Random Forest??
 %successfull applications:(Bauer&Kohavi, 1999; Drucker et al., 1994; Schapire, 1999).
 
 \subsection{Boosting and the Gradient Boosting model}
-Beneath Bagging, another powerful ensembling technique is Boosting. Boosting builds on the idea that the aggregation of weak base learners may lead to a strong learner. In their Adaboost algorithm, Freund and Shapire (\citeyear{freund1996experiments}) start with an ensemble of one weak learner and iteratively add one more weak learner that aims to correct for the (pseudo) residuals of the current ensemble. Thereby, the calculation of these residuals is based on an iterative reweighting of the data. The weights of each datapoint $x_{i}$ for model $m$ depend on the prediction accuracy of the current ensemble hypothesis for that datapoint $h^{ensemble}_{\{1,2,...,m-1\}}(x_{i})$. 
+Beneath Bagging, another powerful ensembling technique is Boosting. It builds on the idea that the aggregation of weak base learners may lead to a strong learner. In their \textit{Adaboost} algorithm, Freund and Shapire (\citeyear{freund1996experiments}) start with an ensemble of one weak learner and iteratively add one more weak learner that aims to correct for the (pseudo) residuals of the current ensemble. Thereby, the calculation of these residuals is based on an iterative reweighting of the data. The weights of each datapoint $x_{i}$ for model $m$ depend on the prediction accuracy of the current ensemble hypothesis for that datapoint $h^{ensemble}_{\{1,2,...,m-1\}}(x_{i})$. 
 
 With Boosting, it is possible to decrease the training error to zero \citep[p.11ff.]{freund1996experiments}. Furthermore, as long as base learners are better than random guessing, the Boosting technique is also able to reduce the generalization error independent of the base learning algorithm.
 
 A development of the Boosting idea is the (Stochastic) Gradient Boosting model, which is currently the most commonly used Boosting model \citep{friedman2001greedy, friedman2002stochastic}. In contrast to the data weighting scheme in the Adaboost algorithm, Gradient Boosting minimizes the gradient of a loss function of the error by applying gradient descent. Typically, small Decision Trees are used as base learners of the Gradient Boosting model due to their propensity towards high prediction bias. Additionally, Gradient Boosting integrates the bagging idea. Friedman shows, that this integration could substantially improve accuracy and execution speed of the model \citep{friedman2002stochastic}.
 
-The possibility to be executed fast is a reason for the heavy use of Gradient Boosting models for machine learning problems. Furthermore, they allow to gain insights into the dependence of target and features by enabling partial dependence plots \citep[p.1219ff.]{friedman2001greedy}. However, due to its nature, Gradient Boosting models are highly prone to overfit the training data and therefore must be accompanied with regularization methods \citep[p.1203]{friedman2002stochastic}.
+The possibility to be executed fast is a reason for the heavy use of Gradient Boosting models for machine learning problems. Furthermore, they allow to gain insights into the dependence of target and features by enabling partial dependence plots \citep[p.1219ff.]{friedman2001greedy}. However, due to its nature, Gradient Boosting models are highly prone to overfit the training data and therefore must be accompanied with regularization methods \citep[p.1203]{friedman2002stochastic}. Therefore most of the parameters of the Gradient Boosting model deal with this problem of overfitting.
 
 % Benchmark studies OR/AND Weiterentwicklungen des Gradient Boosting??
 
 \subsection{Stacked Generalization model}\label{stacking}
 Stacked Generalization models has been introduced by Wolpert (\citeyear{wolpert1992stacked}) and defines a way to combine multiple predictive algorithms by using a second-level algorithm. In contrast to Bagging or Boosting, Stacked Generalization is typically applied to a space of different base learner algorithms. The idea is, that different kinds of models that are applied to the learning problem are able to capture only part of the problem. Combining models with diverging strengths in the right way then leads to improved predictive accuracy. Stacked Generalization is therefore also referred to as a second-stage model.
 
-The Stacking algorithm involves partitioning of training dataset $D^{train} = (\mathbf{x}^{train}, y^{train})$ into $J = \{1, 2,..., J\}$ disjoint parts $D^{train}_1, D^{train}_2,..., D^{train}_J$. For each of these subsets $D^{train}_j$, called \textit{level 0 learning set}, a base learner $m \in \{1,2,...M\}$, also referred to as \textit{level 0 generalizer}, is built on behalf of the training dataset without this subset $D^{train}_{-j}$ \citep[cp.]{wolpert1992stacked}. In each iteration, the model built on $D^{train}_{-j}$ is used to predict the target feature in subset $D^{train}_j$. The predictions of the $J$ subsets are then combined again in order to obtain a prediction of the target over the whole training dataset $D^{train}$. Besides that, each level 0 generalizer is used to predict on the test dataset $D^{test}$. Due to the level 0 generalizers being built $J$ times on different disjoint subsets of the training data, Stacked Generalization can be seen as a sophisticated form of cross-validation. The next step is building a meta learner, referred to as \textit{level 1 generalizer}, that produces a prediction by using the training dataset predictions of the $M$ level 0 generalizers as inputs. 
+The Stacking algorithm involves partitioning of training dataset $D^{train} = (\mathbf{x}^{train}, y^{train})$ into $J = \{1, 2,..., J\}$ disjoint parts $D^{train}_1, D^{train}_2,..., D^{train}_J$. For each of these subsets $D^{train}_j$, called \textit{level 0 learning set}, a base learner $m \in \{1,2,...M\}$, also referred to as \textit{level 0 generalizer}, is built on behalf of the training dataset $D^{train}_{-j}$ that does not include subset $j$. \citep[cp.]{wolpert1992stacked}. In each iteration, the model built on $D^{train}_{-j}$ is used to predict the target feature in subset $D^{train}_j$. The predictions of the $J$ subsets are then combined again in order to obtain a prediction of the target over the whole training dataset $D^{train}$. Besides that, each level 0 generalizer is used to predict on the test dataset $D^{test}$. Due to the level 0 generalizers being built $J$ times on different disjoint subsets of the training data, Stacked Generalization can be seen as a sophisticated form of cross-validation. The next step is building a meta learner, referred to as \textit{level 1 generalizer}, that produces a prediction by using the training dataset predictions of the $M$ level 0 generalizers as inputs. 
 
 Wolpert shows that this stacking procedure is able to reduce the bias of the base learners and thus minimizes the generalization error rate. He even recommends to use a version of Stacked Generalization in any real-world problem \citep[p.2]{wolpert1992stacked}. 
 
 Different meta learning algorithms can be used for the combination of base learners. An optimal meta algorithm finds the best way to use the strengths of the base learners. Overfitting problem is especially present in Stacked Generalization models. This is due to the base learners all predicting the same target \citep{online2017stacking}. As a consequence, cross-validation and regularization can be used. Further more, the chosen meta learning algorithm should not be sensible to collinearity. It is therefore especially recommended to use Regularized Regression, Gradient Boosting or hill climbing methods \citep{SASpaper}. 
 
+%Figure \ref{bv} graphically summarizes how  Boosting, Bagging and Stacking are able to increase predictive model %performance by decreasing generalization variance or generalization bias of the base learners.
 
 
 
 
+\section{Credit Risk Assessment}
+Techniques of Stacking and Ensemble modelling are applied to predictive problems of a broad range of topics. This paper will especially focus on the application of Ensemble Learning in credit risk classification problems. Credit risk assessment and especially its modelling is an important part in the field of financial risk management since for most small- and medium-sized banks, interests on loans are still the primary financial source \citep[p.2]{jacobson2006internal}. The banking supervision accord Basel II, that was published in 2004 and applies to member states of the European Union since 2007, restricted the buffer capital on banks and therefore makes it especially important for them to estimate the riskiness of loan applicants \citep{basel2}. For that, banks need to be able to distinguish between risky and non-risky applicants. Two opposing factors determine the banks' business rules regarding loans: On the one hand, more loans are better for the bank. On the other hand, a bank can not afford to make to many bad decisions, since this would eventually lead to a collapse of the bank. A good strategy on granting loans will therefore be a compromise. Minimizing the fraction of bad decisions thus increases banks' revenue.
 
-\section{Ensemble Modelling in Credit Risk Classification}
-Techniques of Stacking and Ensemble Learning are applied to predictive problems of a broad range of topics. This paper will especially focus on the application of Ensemble Learning in credit risk classification problems. Credit risk assessment and especially its modelling is an important part in the field of financial risk management since for most small- and medium-sized banks, interests on loans are still the primary financial source \citep[p.2]{jacobson2006internal}. The banking supervision accord Basel II, that was published in 2004 and applies to member states of the European Union since 2007, restricted the buffer capital on banks and therefore makes it especially important for them to estimate the riskiness of loan applicants \citep{basel2}. For that, banks need to be able to distinguish between risky and non-risky applicants. Two opposing factors determine the banks' business rules regarding loans: On the one hand, more loans are better. On the other hand, a bank can not afford to make to many bad decisions, since this would eventually lead to a collapse of the bank. A good strategy on loans will therefore be a compromise and minimizing the fraction of bad decisions increases revenue.
-
-Applying Ensemble Learning techniques to credit risk modelling has already proven to be highly valuable. Zhu et al. \citeyear{zhu2017comparison} investigate credit risk assessment for small- and medium-sized Chinese enterprises. For that, they carry out an experiment in which they compare the predictive performance of individual machine learning methods and ensembling methods of different complexity. They find especially the more complex ensembling methods to be of outstanding discriminative accuracy \citep[p.46f.]{zhu2017comparison}. Yu et al. \citeyear{yu2008credit} successfully apply an ensemble learner comprising six levels of stacked Neural Networks in order to evaluate credit risk at the measurement level. Hereby, they further incorporate the Bagging approach. They conclude, that such technique "provides a promising solution to credit risk analysis" \citep[p.1443]{yu2008credit}. 
+Applying Ensemble Learning techniques to credit risk modelling has already proven to be highly valuable. Zhu et al. (\citeyear{zhu2017comparison}) investigate credit risk assessment for small- and medium-sized Chinese enterprises. For that, they carry out an experiment in which they compare the predictive performance of individual machine learning methods and Ensembling methods of different complexity. They find especially the more complex ensembling methods to be of outstanding discriminative accuracy \citep[p.46f.]{zhu2017comparison}. Yu et al. (\citeyear{yu2008credit}) successfully apply an Ensemble learner comprising six levels of stacked Neural Networks in order to evaluate credit risk at the measurement level. Hereby, they further incorporate the Bagging approach. They conclude, that such technique "provides a promising solution to credit risk analysis" \citep[p.1443]{yu2008credit}. 
 
 
 
 
 \section{Methodology}
-In order to evaluate and compare the introduced Stacking and Ensemble models, an empirical evaluation study is conducted. The quantlets for replication of the study can be found 
-%in the appendix \ref{????} or accessed 
-in the corresponding \href{https://github.com/schreckf/NIC_Schreck}{\color{DarkBlue}{github repository}}. In this section, the dataset used for the evaluation study is presented, the model building process is explained in detail and the metrics for evaluation are introduced.
+In order to evaluate and compare the introduced Stacking and Ensemble models, an empirical evaluation study is conducted. The quantlets for replication of the study can be found in the Appendix \ref{code} or accessed in the corresponding \href{https://github.com/schreckf/NIC_Schreck}{\color{DarkBlue}{github repository}}. In this section, the dataset used for the evaluation study is presented, the model building process is explained in detail and the metrics for evaluation are introduced.
 
 \subsection{Data description}
-In order to evaluate the introduced Stacking and Ensemble models, the German Credit Dataset from the UCI machine learning repository is consulted \citep{dataset}. The dataset classifies people as either being good or bad customers for a bank with respect to credit risk. It comprises a total number of 1000 observations and 20 features. Tables \ref{summary_numeric} and \ref{summary_categorical} in the Appendix present the summary statistics for the numerical and the categorical features in the original dataset, respectively. To ensure better model performance, the numerical data is standardized before model building. The dataset is partitioned into a training dataset, comprising 750 observations, and into a test dataset, comprising 250 observations.
+The empirical evaluation study of this paper uses the German Credit Dataset from the UCI machine learning repository \citep{dataset}. This dataset classifies people as either being good or bad customers for a bank with respect to credit risk. It comprises a total number of 1000 observations and 20 features. Tables \ref{summary_numeric} and \ref{summary_categorical} in the Appendix present the summary statistics for the numerical and the categorical features in the original dataset, respectively. To ensure better model performance, the numerical data is standardized before model building. The dataset is partitioned into a training dataset, comprising 750 observations, and into a test dataset, comprising 250 observations.
 
 
 
 
 
 \subsection{Model building process}
-The model building process consists of feature selection, model training and tuning as well as prediction. For the purpose of this study, an extensive set of models went through this process: A Random Forest model and a Gradient Boosting model represent the Ensemble Learners. Furthermore, both models are built a second time as level 0 generalizers for the Stacked Generalization models. Additionally, a Decision Tree, a Neural Network as well as a Logistic Regression model are built in order to provide a diverse set of level 0 generalizers for the Stacking. Four different such Stacking models are built by using different subsets of base learners' predictions. Stacking model 1 and 2 use all level 0 predictions versus the three best level 0 predictions, respectively. A simple averaging is used as a combiner method here. Stacking model 3 and 4 both use all level 0 predictions and combine them via a Gradient Boosting model and a Logistic Regression model, respectively. All models deliver probabilistic predictions. In order to speed up the model building, all models are constructed by use of parallelization across the cores of the machine. 
+The model building process consists of feature selection, model training and tuning as well as prediction. For the purpose of this study, an extensive set of models went through this process: a Random Forest model and a Gradient Boosting model represent the Ensemble learners. Furthermore, both models are built a second time as level 0 generalizers for the Stacked Generalization models. Additionally, a Decision Tree, a Neural Network as well as a Logistic Regression model are built in order to provide a diverse set of level 0 generalizers for the Stacking. Four different such Stacked Generalization models are built by using different subsets of base learners' predictions and different combiner algorithms. 
 
-Before training the model, feature selection is a critical step. The aim of feature selection is dimension reduction. Building the models on an optimal subset of features may reduce their training time, reduce the variance and make the model more easily interpretable \citep{guyon2003introduction}. Since, the optimal subset of features depends on each model, a wrapper approach for feature selection is applied to each model specifically. Each model-specific wrapper approach starts with building an intercept model and sequentially adding the next best feature by using a sequential foreward selection approach. The wrapper approach stops when adding another feature cannot increase the AUC measure (see section \ref{metrics}) by at least $0.00001$ units. All wrapper approaches are run on 3-fold cross-validation in order to avoid overfitting problems. Notably, a larger number of folds led to instabilities due to the small sample size. Subsequently, the subset of features identified by the model-specific wrapper approaches is used for training of the corresponding models. Since the Random Forest and the Gradient Boosting models are built as Ensemble Models and as level 0 generalizer for the Stacked Generalization models, independent wrapper approaches are applied for both versions.
+Before training the models, feature selection is a critical step. The aim of feature selection is dimension reduction. Building the models on an optimal subset of features may reduce their training time, reduce the variance and may make the model more easily interpretable \citep{guyon2003introduction}. Since, the optimal subset of features depends on each model, a wrapper approach for feature selection is applied to each model specifically. Each model-specific wrapper approach starts with building an intercept model and sequentially adding the next best feature by using a sequential foreward selection approach. The wrapper approach stops when adding another feature cannot increase the AUC measure (see section \ref{metrics}) by at least $0.00001$ units. All wrapper approaches are run on 3-fold cross-validation in order to avoid overfitting problems. Notably, a larger number of folds leads to instabilities due to the small sample size. Subsequently, the subset of features identified by the model-specific wrapper approaches is used for training of the corresponding models. Since the Random Forest and the Gradient Boosting models are built as Ensemble models as well as level 0 generalizers for the Stacked Generalization models, independent wrapper approaches are applied for both versions.
 
-The training process for each model generally consists of establishing a broad-grid tuning of all relevant hyperparameters on the training dataset in order to find the (locally) optimal parameter choices. In order to avoid overfitting on the training dataset, each combination of hyperparameters is tested by a 3-fold cross-validation process. For the Random Forest and the Gradient Boosting model, their tuned versions can directly be used for prediction on the test dataset.
-
-For the Stacked Generalization models, the training dataset is partitioned into five disjoint subsets. Each of the five level 0 generalizers is then build in five iterations as described in section \ref{stacking}. Again, each iteration involves a parameter tuning on 3-fold cross-validation. All level 0 generalizers are then used to predict the observations in the test dataset. Stacking model 1 is then built by averaging over the probabilistic predictions of all five level 0 generalizers. Stacking model 2 is constructed by averaging over the probabilistic predictions of the three best predictions of level 0 generalizers in terms of AUC measure. For that, the correlations of the level 0 generalizers on the training data must be investigated in order to avoid multicollinearity problems. Stacking model 3 is built by using again all level 0 predictions and a Gradient Boosting model as combining algorithm. Finally, Stacking model 4 is constructed by combining all level 0 predictions by using a Logistic Regression combiner. The parameters of the combining algorithms are again tuned under 3-fold cross-validation.
+The training process for each model generally consists of establishing a broad-grid tuning of all relevant hyperparameters on the training dataset in order to find the (locally) optimal parameter choices. In order to avoid overfitting on the training dataset, each combination of hyperparameters is tested by a 3-fold cross-validation process. For the Random Forest and the Gradient Boosting model, their tuned versions can directly be used for prediction on the test dataset. For the Stacked Generalization models, the training dataset is partitioned into five disjoint subsets. Each of the five level 0 generalizers is then build in five iterations as described in section \ref{stacking}. Again, each iteration involves a parameter tuning on 3-fold cross-validation. All level 0 generalizers are then used to predict the observations in the test dataset. Stacking model 1 is then built by averaging over the probabilistic predictions of all five level 0 generalizers. Stacking model 2 is constructed by averaging over the probabilistic predictions of the three best predictions of level 0 generalizers in terms of AUC measure. For that, the correlations of the level 0 generalizers on the training data must be investigated in order to avoid multicollinearity problems. Stacking model 3 is built by using again all level 0 predictions and a Gradient Boosting model as combining algorithm. Finally, Stacking model 4 is constructed by combining all level 0 predictions by using a Logistic Regression combiner. The parameters of the combining algorithms are again tuned under 3-fold cross-validation.
 
 \subsection{Evaluation metrics}\label{metrics}
 In credit risk modelling, the misclassification costs are often type-specific. This means that a false negative prediction may have different costs for the bank than a false positive prediction. When misclassification costs are known, a cost-sensitive model building strategy should be consulted. Since in the context of this paper misclassification costs are however unknown, equal misclassification costs for false negative and false positive predictions are assumed. Furthermore, the broad field of cost-sensitive learning may serve as a topic for other studies. The following metrics are used to evaluate the models.
 
-\paragraph{AUC:} In the model building process, tuning of model parameters for each model $m$ is evaluated on the Area Under Curve metric (AUC). Tuning on the AUC is especially recommended when facing probabilistic predictions, since it generalizes over all possible cut-off thresholds. The AUC is a ranking indicator that measures the area under the receiver operating characteristic curve (ROC curve) \citep{hanley1982meaning}. For a probabilistic prediction, like in the context of this study, a visualization of the ROC curve can be obtained by plotting the sensitivity against $1 -$ specificity for all cut-off thresholds between zero and one. The AUC value can therefore take values between zero and one as well. A random model would obtain an AUC value of $0.5$, which can thus function as a benchmark value in model evaluation on AUC. In a statistical sense, the AUC estimates the probability that a randomly chosen correct prediction is correctly ranked higher than a randomly chosen false prediction. For model $m$ the AUC can be calculated as
+\paragraph{AUC:} In the model building process, tuning of model parameters for each model $m$ is evaluated on the Area Under Curve (AUC) metric. Tuning on the AUC is especially recommended when facing probabilistic predictions, since the metric generalizes over all possible cut-off thresholds that could be used to transform probabilistic into binary predictions. The AUC is a ranking indicator that measures the area under the receiver operating characteristic curve (ROC curve) \citep{hanley1982meaning}. For a probabilistic prediction, like in the context of this study, a visualization of the ROC curve can be obtained by plotting the sensitivity against $1 -$ specificity for all cut-off thresholds between zero and one. The AUC value can therefore take values between zero and one as well. A random model would obtain an AUC value of $0.5$, which can thus function as a benchmark value in model evaluation on AUC. In a statistical sense, the AUC estimates the probability that a randomly chosen correct prediction is correctly ranked higher than a randomly chosen false prediction. For model $m$, the AUC can be calculated as
 \begin{equation}
 \text{AUC}^m = \frac{1}{P \times N}\sum_{j=1}^{P}\sum_{k=1}^{N}(\hat{y}^m_j - \hat{y}^m_k)
 \end{equation}
-, whereby $P$ and $N$ denote the positive (in our case \text{good}) and negative (\textit{bad}) instances amongst the outcome values in the credit data. Further, $\hat{y}^m_j$ and $\hat{y}^m_k$ are the predictions for the positive instance $y_j$ and the prediction for the negative instance $y_k$, respectively.
+, whereby $P$ and $N$ denote the positive (in our case \textit{good}) and negative (\textit{bad}) instances amongst the outcome values in the credit data. Further, $\hat{y}^m_j$ and $\hat{y}^m_k$ are the predictions of model $m$ for the positive instance $y_j$ and the prediction for the negative instance $y_k$, respectively.
 
-\paragraph{Accuracy:} A further important metric in evaluation of classification models is the Accuracy metric, which can be interpreted as the percentage of correctly classified points. In contrast to the AUC, probabilistic predictions must be transformed into binary predictions for the Accuracy metric, which implies selecting a cut-off threshold. For the purpose of this study, a natural cut-off threshold of $0.5$ is chosen.
+\paragraph{Accuracy:} Another important metric in evaluation of classification models is the Accuracy metric, which can be interpreted as the percentage of correctly classified points. In contrast to the AUC, probabilistic predictions must be transformed into binary predictions for the Accuracy metric, which implies selecting a cut-off threshold. For the purpose of this study, a natural cut-off threshold of $0.5$ is chosen.
 \begin{equation}
 \text{Accuracy}^m = \frac{TP^m + TN^m}{FP^m + FN^m + TP^m + TN^m}
 \end{equation}
@@ -317,7 +331,7 @@ In credit risk modelling, the misclassification costs are often type-specific. T
 
 \paragraph{Logarithmic Loss:} The Logarithmic Loss is a metric for evaluating class predictions that penalizes for a high confidence about incorrect classifications. For the case of a binary outcome, the Logarithmic Loss is given by\\
 \begin{equation}
-\text{LogLoss}^m = - \frac{1}{N}\sum_{i=1}^{N}(y^m_i\log(p^m_i) + (1 - y^m_i)\log(1 - p^m_i))
+\text{LogLoss}^m = - \frac{1}{N}\sum_{i=1}^{N}(y_i\times\log(p^m_i) + (1 - y_i)\times\log(1 - p^m_i))
 \end{equation}
 , whereby $p^m_i$ is model $m$'s prediction for observation $y_i$.
 
@@ -333,29 +347,29 @@ In the following, the results of the empirical application of Stacking and Ensem
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{rrrrr}
+\begin{tabular}{lcccc}
   \hline
- & AUC & Accuracy & Logarithmic Loss & Brier Score \\ 
+ & AUC & Accuracy & LogLoss & Brier\\ 
   \hline
-Random Forest & 0.78 & 0.73 & 0.52 & 0.18 \\ 
-  Gradient Boosting & 0.78 & 0.72 & 0.52 & 0.18 \\
+Ensemble model: Random Forest & 0.78 & 0.73 & 0.52 & 0.18 \\ 
+Ensemble model: Gradient Boosting & 0.78 & 0.72 & 0.52 & 0.18 \\
 \hline 
-  Decision Tree (level 0) & 0.69 & 0.65 & 0.60 & 0.21 \\ 
-  Logit Regression (level 0) & 0.71 & 0.74 & 0.57 & 0.19 \\ 
-  Neural Network (level 0) & 0.76 & 0.74 & 0.53 & 0.18 \\ 
-  Random Forest (level 0) & 0.73 & 0.69 & 0.56 & 0.19 \\ 
-  Gradient Boosting (level 0) & 0.80 & 0.74 & 0.52 & 0.17 \\ 
+  Level 0 generalizer: Decision Tree & 0.69 & 0.65 & 0.60 & 0.21 \\ 
+  Level 0 generalizer: Logit Regression & 0.71 & 0.74 & 0.57 & 0.19 \\ 
+  Level 0 generalizer: Neural Network & 0.76 & 0.74 & 0.53 & 0.18 \\ 
+  Level 0 generalizer: Random Forest & 0.73 & 0.69 & 0.56 & 0.19 \\ 
+  Level 0 generalizer: Gradient Boosting & 0.80 & 0.74 & 0.52 & 0.17 \\ 
 \hline
-  Stacking Model 1 (average, all) & 0.77 & 0.64 & 0.24 & 0.18 \\ 
-  Stacking Model 2 (average, best) & 0.77 & 0.63 & 0.25 & 0.18 \\ 
-  Stacking Model 3 (GB, all) & 0.78 & 0.61 & 0.29 & 0.17 \\ 
-  Stacking Model 4 (LR, all) & 0.81 & 0.64 & 0.30 & 0.16 \\ 
+  Stacking model 1: Average, all predictions & 0.77 & 0.64 & 0.24 & 0.18 \\ 
+  Stacking model 2 Average, best predictions & 0.77 & 0.63 & 0.25 & 0.18 \\ 
+  Stacking model 3: GB, all predictions & 0.78 & 0.61 & 0.29 & 0.17 \\ 
+  Stacking model 4: LR, all predictions & 0.81 & 0.64 & 0.30 & 0.16 \\ 
    \hline
 \end{tabular}
-\caption[Model performances on the test dataset]{Model performances on the test dataset. Values rounded on two digits after comma.}\label{eval}
+\caption[Model performances on the test dataset]{Model performances on the test dataset. Values rounded on two digits after comma. Abbreviations GB and LR denote Gradient Boosting and Logistic Regression that are used as combiner algorithms.}\label{eval}
 \end{table}
 
-Since all models were tuned on the AUC, the comparison on behalf of this metric is most informative. The two Ensemble models, namely the Random Forest and the Gradient Boosting model, score highly on the AUC metric with a value of $0.78$. In terms of AUC, they even outperform most level 0 generalizers, especially the Decision Tree and the Logistic Regression. It can be concluded that they rank a randomly chosen correct prediction comparatively comparatively higher than a randomly chosen false prediction in comparison with the level 0 generalizers. Notably, the Gradient Boosting level 0 generalizer and the Random Forest level 0 generalizer perform a bit different when compared to their counterparts. This may origin from the decreased training dataset size due to the partitioning that was applied for the level 0 generalizers. 
+\noindent Since all models were tuned on the AUC metric, the comparison on behalf of this metric is most informative. The two Ensemble models, namely the Random Forest and the Gradient Boosting model, score highly on the AUC metric with a value of $0.78$. In terms of AUC, they even outperform most level 0 generalizers, especially the Decision Tree and the Logistic Regression. It can be concluded that they rank a randomly chosen correct prediction comparatively comparatively higher than a randomly chosen false prediction in comparison with the level 0 generalizers. Notably, the Gradient Boosting level 0 generalizer and the Random Forest level 0 generalizer perform a bit different when compared to their counterparts. This may origin from the decreased size of training dataset due to the partitioning that was applied for building the level 0 generalizers. 
 
 The four Stacking models were built on top of the level 0 generalizers. Figure \ref{corrgram} shows the correlations of the predictions of the level 0 generalizers on the training data. It can be seen that the predictions of the level 0 generalizers are (mostly) correlated positively, which seems intuitive since they all predict the target in the similar context. However, correlations are not perfect (all $<|0.9|$). This reveals diversity of predictions, which already indicates that combining them may increase predictive performance.
 
@@ -364,7 +378,7 @@ The four Stacking models were built on top of the level 0 generalizers. Figure \
 \caption[Correlation plot of predictions]{Correlation plot of training dataset predictions of level 0 generalizers.}\label{corrgram}
 \end{figure}  
 
-Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking models 1, 2 and 3 that are based on averaging predictions as well as a Gradient Boosting combiner have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 4 that is based on combining level 0 predictions by Logistic Regression, respectively, even show a better AUC performance than the Random Forest and the Gradient Boosting model. For visual comparison, Figure \ref{aucplot} shows the ROC curves related to the AUC values for all models.
+Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking models 1, 2 and 3 that are based on averaging predictions as well as a Gradient Boosting combiner have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 4 that is based on combining level 0 predictions by Logistic Regression even shows a better AUC performance than the Random Forest and the Gradient Boosting model. For visual comparison, Figure \ref{aucplot} shows the ROC curves related to the AUC values for all models.
 
 \begin{figure}[!htp] \centering{
 \includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.8]{graphs/aucplot_final.pdf}}
@@ -372,7 +386,7 @@ Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperfor
 \end{figure} 
 
 
-With regards to the Accuracy, the Logistic Regression and the Neural Network perform about equally well as the two Ensemble models. The Decision Tree is however outperformed by the Random Forest and the Gradient Boosting model. Interestingly, all four Stacking models show relatively bad Accuracy values. Regarding the relation of Accuracy and AUC, it can be concluded that the Stacking and Ensemble models do not necessarily perform better on the cut-off threshold of $0.5$, which is implied by the Accuracy metric. However, generalizing over all possible cut-off threshold they clearly outperform most level 0 generalizers as can be seen by the corresponding AUC values. Furthermore, this indicates that the standard cut-off threshold for probabilistic predictions of $0.5$ may not be optimal for those models.
+With regards to the Accuracy, the Logistic Regression and the Neural Network perform about equally well as the two Ensemble models. The Decision Tree is however outperformed by the Random Forest and the Gradient Boosting model. Interestingly, all four Stacking models show relatively bad values on the Accuracy metric. Regarding the relation of Accuracy and AUC, it can be concluded that the Stacking and Ensemble models do not necessarily perform better on the cut-off threshold of $0.5$, which is implied by the Accuracy metric. However, generalizing over all possible cut-off threshold they clearly outperform most level 0 generalizers as can be seen by the corresponding AUC values and the corresponding ROC curves in Figure \ref{aucplot}. Furthermore, this indicates that the standard cut-off threshold for probabilistic predictions of $0.5$ may not be optimal for those models.
 
 The Logarithmic Loss metric gives even more information on the particular strengths and weaknesses of the models. Contrasting the level 0 generalizers with the Random Forest and the Gradient Boosting model, the latter show a slightly smaller Logarithmic Loss. The four Stacking models however, reveal a much better performance on behalf of the Logarithmic Loss metric. It can be concluded, that the Ensemble models and even more the Stacking models do not place as high confidences on their incorrect predictions. 
 
@@ -387,7 +401,7 @@ This paper aimed to discuss and evaluate Stacking and Ensemble models in a finan
 
 A broad set of different Stacking and Ensemble models as well as standard machine learning models was applied and evaluated to a classification problem of credit risk assessment. Thereby, the Random Forest model and Gradient Boosting model outperformed standard machine learning models on behalf of the calculated metrics. Furthermore, all four Stacked Generalization approaches were able to establish a better performance on AUC, Logarithmic Loss and Brier Score than their level 0 generalizers. With regards to Accuracy metric, they performed worse, suggesting that the metric-implied cut-off threshold of $0.5$ being suboptimal. Even a simple combiner algorithm like averaging could increase performance of the Stacking model, while the Logistic Regression combiner performed best. Restricting the subset of input predictions seems to be ineffective with regards to performance issues. To conclude, Stacking and Ensemble models could show their comparative strengths in this study. The results strongly confirm their value for prediction issues in credit risk assessment.
 
-While this study focused on predicting binary outcomes, further research could evaluate the performance of Stacking and Ensemble models for regression problems in a similar context. A shortfall of Stacking and Ensemble models is their need of much computational resources caused by their complexity. In the context of \textit{scalability}, current research tests ideas that restrict computational costs, e.g. by adaptive parallelization \citep{li2014communication} or by improving sub-model algorithms like stochastic gradient descent \citep{bottou2012stochastic}. A further problem of such models is the absence of proven statistical properties like unbiasedness, consistency or asymptotic theory for construction of confidence intervals. In order to use machine learning models for research purposes, such properties are however necessary. Only recently, the field of \textit{machine learning in economics} emerged, where the development of such properties is aimed at (see \cite{athey2017impact} ,\citeauthor{wager2018est} \hyperlink{wager2018est}{(\color{DarkBlue}{in press})}).  
+While this study focused on predicting binary outcomes, further research could evaluate the performance of Stacking and Ensemble models for regression problems in a similar context. A shortfall of Stacking and Ensemble models is their need of much computational resources caused by their complexity. In the context of \textit{scalability}, current research tests ideas that restrict computational costs, e.g. by adaptive parallelization \citep{li2014communication} or by improving intra-model algorithms like stochastic gradient descent \citep{bottou2012stochastic}. A further problem of such models is the absence of proven statistical properties like unbiasedness, consistency or asymptotic theory for construction of confidence intervals. In order to use machine learning models for research purposes, such properties are however necessary. Only recently, the field of \textit{machine learning in economics} emerged, where the development of such properties is aimed at (see \cite{athey2017impact} ,\citeauthor{wager2018est} \hyperlink{wager2018est}{(\color{DarkBlue}{in press})}). Developments in this field of research will also enable better application of machine learning models to financial research problems.
 
 
 
@@ -514,9 +528,9 @@ Foreign Worker & yes & 963 & 96.3\% \\
 
 \clearpage
 
-\section{Appendix - Code}
+\section{Appendix - Code}\label{code}
 \begin{algorithm}
-\caption[Quantlet 1: Main file]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Main file}}}
+\caption[Quantlet 1: Main file]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Main file}}}
 \end{algorithm}
 
 \begin{lstlisting}
@@ -1056,7 +1070,7 @@ legend(xy.coords(0.6,0.57), legend = c("Random Forest",
 \end{lstlisting}
 
 \begin{algorithm}
-\caption[Quantlet 2: Gradient Boosting Model Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Gradient Boosting Model Feature Selection}}}
+\caption[Quantlet 2: Gradient Boosting Model Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Gradient Boosting Model Feature Selection}}}
 \end{algorithm}
 
 \begin{lstlisting}
@@ -1102,7 +1116,7 @@ vars$gb          <- c("customer", gb_sfeats$x)
 
 
 \begin{algorithm}
-\caption[Quantlet 3: Random Forest Model Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Random Forest Model Feature Selection}}}
+\caption[Quantlet 3: Random Forest Model Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Random Forest Model Feature Selection}}}
 \end{algorithm}
 
 
@@ -1145,7 +1159,7 @@ vars$rf <- c("customer", rf_sfeats$x)
 
 
 \begin{algorithm}
-\caption[Quantlet 4: Stacking: Decision Tree (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Decision Tree (level 0) Feature Selection}}}
+\caption[Quantlet 4: Stacking: Decision Tree (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Decision Tree (level 0) Feature Selection}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Decision Tree model. A wrapper approach #####
@@ -1186,7 +1200,7 @@ vars$dt <- c("customer", dt_sfeats$x)
 
 
 \begin{algorithm}
-\caption[Quantlet 5: Logistic Regression (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Logistic Regression (level 0) Feature Selection}}}
+\caption[Quantlet 5: Logistic Regression (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Logistic Regression (level 0) Feature Selection}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Logit model. A wrapper approach #####
@@ -1226,7 +1240,7 @@ vars$logit <- c("customer", logit_sfeats$x)
 
 
 \begin{algorithm}
-\caption[Quantlet 6: Stacking: Neural Network (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Neural Network (level 0) Feature Selection}}}
+\caption[Quantlet 6: Stacking: Neural Network (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Neural Network (level 0) Feature Selection}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Neural Network. A wrapper approach #######
@@ -1266,7 +1280,7 @@ vars$nnet <- c("customer", nnet_sfeats$x)
 \end{lstlisting}
 
 \begin{algorithm}
-\caption[Quantlet 7: Gradient Boosting (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Gradient Boosting (level 0) Feature Selection}}}
+\caption[Quantlet 7: Gradient Boosting (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Gradient Boosting (level 0) Feature Selection}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Gradient Boosting model. A wrapper approach #####
@@ -1307,7 +1321,7 @@ vars$gb2 <- c("customer", gb_sfeats$x)
 
 
 \begin{algorithm}
-\caption[Quantlet 8: Stacking: Random Forest (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Random Forest (level 0) Feature Selection}}}
+\caption[Quantlet 8: Stacking: Random Forest (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Random Forest (level 0) Feature Selection}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Feature selection for the Random Forest model. A wrapper approach #####
@@ -1348,7 +1362,7 @@ vars$rf2 <- c("customer", rf_sfeats$x)
 
 
 \begin{algorithm}
-\caption[Quantlet 9: Random Forest Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Random Forest Model Building}}}
+\caption[Quantlet 9: Random Forest Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Random Forest Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ############### Random forest model ###############################
@@ -1419,7 +1433,7 @@ yhat$rf      <- predict(model_lib$rf, newdata = test)
 
 
 \begin{algorithm}
-\caption[Quantlet 10: Gradient Boosting Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Gradient Boosting Model Building}}}
+\caption[Quantlet 10: Gradient Boosting Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Gradient Boosting Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Gradient Boosting model (with mlr package) #################
@@ -1512,7 +1526,7 @@ yhat$gb      <- predict(model_lib$gb, newdata = test_onehot[, c(vars$gb)])
 
 
 \begin{algorithm}
-\caption[Quantlet 11: Stacking: Decision Tree (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Decision Tree (level 0) Model Building}}}
+\caption[Quantlet 11: Stacking: Decision Tree (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Decision Tree (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ################ Decision tree model ##############################
@@ -1602,7 +1616,7 @@ yhat$dt_test   <- predict(model_lib$dt, newdata = test)
 \end{lstlisting}
 
 \begin{algorithm}
-\caption[Quantlet 11: Stacking: Logistic Regression (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Logistic Regression (level 0) Model Building}}}
+\caption[Quantlet 11: Stacking: Logistic Regression (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Logistic Regression (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Logit model ################################################
@@ -1642,7 +1656,7 @@ yhat$logit_test   <- predict(model_lib$logit, newdata = test)
 \end{lstlisting}
 
 \begin{algorithm}
-\caption[Quantlet 12: Stacking: Neural Network (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Neural Network (level 0) Model Building}}}
+\caption[Quantlet 12: Stacking: Neural Network (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Neural Network (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Neural Network #############################################
@@ -1729,7 +1743,7 @@ yhat$nnet_test  <- predict(model_lib$nnet, newdata = test)
 
 
 \begin{algorithm}
-\caption[Quantlet 13: Stacking: Gradient Boosting (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Gradient Boosting (level 0) Model Building}}}
+\caption[Quantlet 13: Stacking: Gradient Boosting (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Gradient Boosting (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Stacking: Gradient Boosting model (with mlr package) #######
@@ -1838,7 +1852,7 @@ yhat$gb2_test  <- predict(model_lib$gb2, newdata = test_onehot[, c(vars$gb2)])
 \end{lstlisting}
 
 \begin{algorithm}
-\caption[Quantlet 14: Stacking: Random Forest (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Random Forest (level 0) Model Building}}}
+\caption[Quantlet 14: Stacking: Random Forest (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Random Forest (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Stacking: Random forest model ##############################
@@ -1928,7 +1942,7 @@ yhat$rf2_test   <- predict(model_lib$rf2, newdata = test)
 
 
 \begin{algorithm}
-\caption[Quantlet 15: Stacking: Stacked Generalization Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\large\textbf{Stacking: Stacked Generalization Model Building}}}
+\caption[Quantlet 15: Stacking: Stacked Generalization Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Stacked Generalization Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Stacked Generalization models ##############################

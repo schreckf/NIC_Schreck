@@ -62,7 +62,7 @@
     basicstyle      =\scriptsize \ttfamily,
     breaklines      =true,
     keepspaces      =false,
-    deletekeywords  ={_, model, dt, set, /, rf, measures, response, log, eval, table, nrow, ncol, kappa, labels, replace, prop, cat, file, numeric, sd, median, mean, as, data, row.names, levels, all, path, predict, control, show, par, lower, upper, min, max},
+    deletekeywords  ={_, model, dt, set, /, rf, measures, response, log, eval, table, nrow, ncol, kappa, labels, replace, prop, cat, file, numeric, sd, end, gamma, factor, frame, median, mean, as, data, row.names, levels, all, path, predict, control, show, par, lower, upper, min, max, start},
     morekeywords    ={},
     numbers         =left,
     numbersep       =10pt,
@@ -284,9 +284,12 @@ Wolpert shows that this stacking procedure is able to reduce the bias of the bas
 
 Different meta learning algorithms can be used for the combination of base learners. An optimal meta algorithm finds the best way to use the strengths of the base learners. Overfitting problem is especially present in Stacked Generalization models. This is due to the base learners all predicting the same target \citep{online2017stacking}. As a consequence, cross-validation and regularization can be used. Further more, the chosen meta learning algorithm should not be sensible to collinearity. It is therefore especially recommended to use Regularized Regression, Gradient Boosting or hill climbing methods \citep{SASpaper}. 
 
-%Figure \ref{bv} graphically summarizes how  Boosting, Bagging and Stacking are able to increase predictive model %performance by decreasing generalization variance or generalization bias of the base learners.
+Figure \ref{bv} visualizes how  Boosting, Bagging and Stacking are able to increase performance of predictive models by decreasing generalization variance and generalization bias of Decision Tree base learners, exemplarily. Furthermore, it can be seen that making the model more complex, by e.g. growing the Tree, does typically not provide a good model.
 
-
+\begin{figure}[!htp] \centering{
+\includegraphics[trim={0cm 4.5cm 0cm 1cm}, clip, scale=0.2]{graphs/biasvariance_reduction_bw.png}}
+\caption[Bias and Variance Reduction]{Reduction of Bias and Variance by Stacking and Ensembling methods with Decision Trees as base learners.}\label{bv}
+\end{figure} 
 
 
 \section{Credit Risk Assessment}
@@ -371,18 +374,18 @@ Ensemble model: Gradient Boosting & 0.78 & 0.72 & 0.52 & 0.18 \\
 
 \noindent Since all models were tuned on the AUC metric, the comparison on behalf of this metric is most informative. The two Ensemble models, namely the Random Forest and the Gradient Boosting model, score highly on the AUC metric with a value of $0.78$. In terms of AUC, they even outperform most level 0 generalizers, especially the Decision Tree and the Logistic Regression. It can be concluded that they rank a randomly chosen correct prediction comparatively comparatively higher than a randomly chosen false prediction in comparison with the level 0 generalizers. Notably, the Gradient Boosting level 0 generalizer and the Random Forest level 0 generalizer perform a bit different when compared to their counterparts. This may origin from the decreased size of training dataset due to the partitioning that was applied for building the level 0 generalizers. 
 
-The four Stacking models were built on top of the level 0 generalizers. Figure \ref{corrgram} shows the correlations of the predictions of the level 0 generalizers on the training data. It can be seen that the predictions of the level 0 generalizers are (mostly) correlated positively, which seems intuitive since they all predict the target in the similar context. However, correlations are not perfect (all $<|0.9|$). This reveals diversity of predictions, which already indicates that combining them may increase predictive performance.
+\noindent The four Stacking models were built on top of the level 0 generalizers. Figure \ref{corrgram} shows the correlations of the predictions of the level 0 generalizers on the training data. It can be seen that the predictions of the level 0 generalizers are (mostly) correlated positively, which seems intuitive since they all predict the target in the similar context. However, correlations are not perfect (all $<|0.9|$). This reveals diversity of predictions, which already indicates that combining them may increase predictive performance.
 
 \begin{figure}[htp] \centering{
-\includegraphics[trim={1cm 2.5cm 1cm 0.63cm}, scale=0.8]{graphs/corrgram_version3.pdf}}
-\caption[Correlation plot of predictions]{Correlation plot of training dataset predictions of level 0 generalizers.}\label{corrgram}
+\includegraphics[trim={1cm 3.2cm 1cm 2cm}, clip, scale=0.74]{graphs/corrgram.pdf}}
+\caption[Correlation of predictions]{Correlation plot of training dataset predictions of level 0 generalizers.}\label{corrgram}
 \end{figure}  
 
 Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking models 1, 2 and 3 that are based on averaging predictions as well as a Gradient Boosting combiner have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 4 that is based on combining level 0 predictions by Logistic Regression even shows a better AUC performance than the Random Forest and the Gradient Boosting model. For visual comparison, Figure \ref{aucplot} shows the ROC curves related to the AUC values for all models.
 
 \begin{figure}[!htp] \centering{
-\includegraphics[trim={0cm 0cm 0cm 0cm}, scale=0.8]{graphs/aucplot_final.pdf}}
-\caption[ROC curves]{Receiver Operating Characteristic (ROC) curves for all models.}\label{aucplot}
+\includegraphics[trim={0cm 0.5cm 0cm 1.8cm},clip, scale=0.85]{graphs/aucplot.pdf}}
+\caption[ROC curves]{Receiver Operating Characteristic (ROC) curves for the predictions of all models. The diagonal line represents the ROC curve of a random model.}\label{aucplot}
 \end{figure} 
 
 
@@ -395,7 +398,7 @@ Regarding the Brier Score, differences are not that present. In tendency, the St
 With regards to all calculated metrics, Stacking models are be able to capture the structure in the data most effective. Already a simple averaging approach, as applied for Stacking models 1 and 2, leads to increased performance when compared to the level 0 models. Interestingly, reducing the set of level 0 generalizers, like for Stacking model 2, does not add more value. Nevertheless, it shall be noted that such restriction of input predictions could still decrease computational costs. Applying a more sophisticated level 1 combiner, like Gradient Boosting or Logistic Regression, furthermore improves prediction. In particular, the Logistic Regression combiner is able to increase AUC performance. 
 
 
-
+\newpage
 \section{Conclusion}
 This paper aimed to discuss and evaluate Stacking and Ensemble models in a financial application of credit risk assessment. Focus was set on introducing the concepts of Bagging, Boosting and Stacked Generalization as well as the corresponding Random Forest and Gradient Boosting models. In depth, it was explained how Bagging and Boosting aim at increasing performance by decreasing generalization variance of base learners and by decreasing generalization bias of base learners, respectively. Moreover, the Stacked Generalization model was outlined, that seeks for the optimal way to combine the specific strengths of level 0 generalizers in order to increase predictive performance even more.
 
@@ -1157,7 +1160,7 @@ analyzeFeatSelResult(rf_sfeats)
 vars$rf <- c("customer", rf_sfeats$x)
 \end{lstlisting}
 
-
+\newpage
 \begin{algorithm}
 \caption[Quantlet 4: Stacking: Decision Tree (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Decision Tree (level 0) Feature Selection}}}
 \end{algorithm}
@@ -1319,7 +1322,7 @@ analyzeFeatSelResult(gb_sfeats)
 vars$gb2 <- c("customer", gb_sfeats$x)
 \end{lstlisting}
 
-
+\newpage
 \begin{algorithm}
 \caption[Quantlet 8: Stacking: Random Forest (level 0) Feature Selection]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Random Forest (level 0) Feature Selection}}}
 \end{algorithm}
@@ -1431,7 +1434,7 @@ yhat$rf      <- predict(model_lib$rf, newdata = test)
 \end{lstlisting}
 
 
-
+\newpage
 \begin{algorithm}
 \caption[Quantlet 10: Gradient Boosting Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Gradient Boosting Model Building}}}
 \end{algorithm}
@@ -1616,7 +1619,7 @@ yhat$dt_test   <- predict(model_lib$dt, newdata = test)
 \end{lstlisting}
 
 \begin{algorithm}
-\caption[Quantlet 11: Stacking: Logistic Regression (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Logistic Regression (level 0) Model Building}}}
+\caption[Quantlet 12: Stacking: Logistic Regression (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Logistic Regression (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Logit model ################################################
@@ -1655,8 +1658,9 @@ yhat$logit_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
 yhat$logit_test   <- predict(model_lib$logit, newdata = test)
 \end{lstlisting}
 
+\newpage
 \begin{algorithm}
-\caption[Quantlet 12: Stacking: Neural Network (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Neural Network (level 0) Model Building}}}
+\caption[Quantlet 13: Stacking: Neural Network (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Neural Network (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Neural Network #############################################
@@ -1741,9 +1745,8 @@ yhat$nnet_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
 yhat$nnet_test  <- predict(model_lib$nnet, newdata = test)
 \end{lstlisting}
 
-
 \begin{algorithm}
-\caption[Quantlet 13: Stacking: Gradient Boosting (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Gradient Boosting (level 0) Model Building}}}
+\caption[Quantlet 14: Stacking: Gradient Boosting (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Gradient Boosting (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Stacking: Gradient Boosting model (with mlr package) #######
@@ -1852,7 +1855,7 @@ yhat$gb2_test  <- predict(model_lib$gb2, newdata = test_onehot[, c(vars$gb2)])
 \end{lstlisting}
 
 \begin{algorithm}
-\caption[Quantlet 14: Stacking: Random Forest (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Random Forest (level 0) Model Building}}}
+\caption[Quantlet 15: Stacking: Random Forest (level 0) Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Random Forest (level 0) Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Stacking: Random forest model ##############################
@@ -1940,9 +1943,9 @@ yhat$rf2_train  <- rbind(pred[[1]]$data, pred[[2]]$data, pred[[3]]$data,
 yhat$rf2_test   <- predict(model_lib$rf2, newdata = test)
 \end{lstlisting}
 
-
+\newpage
 \begin{algorithm}
-\caption[Quantlet 15: Stacking: Stacked Generalization Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Stacked Generalization Model Building}}}
+\caption[Quantlet 16: Stacking: Stacked Generalization Model Building]{\href{https://github.com/schreckf/NIC_Schreck/blob/master/code}{\color{Black}\large\textbf{Stacking: Stacked Generalization Model Building}}}
 \end{algorithm}
 \begin{lstlisting}
 ###### Stacked Generalization models ##############################

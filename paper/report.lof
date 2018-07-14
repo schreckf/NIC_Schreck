@@ -1,3 +1,4 @@
 \select@language {english}
-\contentsline {figure}{\numberline {1}{\ignorespaces Correlation plot of predictions}}{11}{figure.caption.10}
-\contentsline {figure}{\numberline {2}{\ignorespaces ROC curves}}{11}{figure.caption.11}
+\contentsline {figure}{\numberline {1}{\ignorespaces Bias and Variance Reduction}}{6}{figure.caption.5}
+\contentsline {figure}{\numberline {2}{\ignorespaces Correlation of predictions}}{11}{figure.caption.11}
+\contentsline {figure}{\numberline {3}{\ignorespaces ROC curves}}{12}{figure.caption.12}

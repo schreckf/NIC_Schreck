@@ -58,7 +58,7 @@
 \usepackage{listings}
 \lstset{    
     language        =R,
-    backgroundcolor =\color{GhostWhite},
+    backgroundcolor =\color{White},
     basicstyle      =\scriptsize \ttfamily,
     breaklines      =true,
     keepspaces      =false,
@@ -73,9 +73,9 @@
     showstringspaces=false,
     tabsize         =2,
     frame           =single,
-   keywordstyle=\color{RoyalBlue},      % keyword style
-   commentstyle=\color{ForestGreen},   % comment style
-   stringstyle=\color{ForestGreen}      % string literal style
+   keywordstyle=\color{Black},      % keyword style
+   commentstyle=\color{Grey},   % comment style
+   stringstyle=\color{Grey}      % string literal style
 }
 
 
@@ -96,7 +96,7 @@
 \usepackage[round]{natbib}
 
 %\usepackage[unicode,colorlinks,filecolor=DarkGreen,citecolor=DarkRed,linkcolor=black,urlcolor=DarkBlue]{hyperref}
-\usepackage[colorlinks, filecolor=magenta, citecolor=DarkBlue, linkcolor=black, urlcolor=blue]{hyperref}
+\usepackage[colorlinks, filecolor=magenta, citecolor=black, linkcolor=black, urlcolor=black]{hyperref}
 
 \usepackage{wrapfig}
 
@@ -301,7 +301,7 @@ Applying Ensemble Learning techniques to credit risk modelling has already prove
 
 
 \section{Methodology}
-In order to evaluate and compare the introduced Stacking and Ensemble models, an empirical evaluation study is conducted. The quantlets for replication of the study can be found in the Appendix \ref{code} or accessed in the corresponding \href{https://github.com/schreckf/NIC_Schreck}{\color{DarkBlue}{github repository}}. In this section, the dataset used for the evaluation study is presented, the model building process is explained in detail and the metrics for evaluation are introduced.
+In order to evaluate and compare the introduced Stacking and Ensemble models, an empirical evaluation study is conducted. The quantlets for replication of the study can be found in the Appendix \ref{code} or accessed in the corresponding \href{https://github.com/schreckf/NIC_Schreck}{\color{black}{github repository}}. In this section, the dataset used for the evaluation study is presented, the model building process is explained in detail and the metrics for evaluation are introduced.
 
 \subsection{Data description}
 The empirical evaluation study of this paper uses the German Credit Dataset from the UCI machine learning repository \citep{dataset}. This dataset classifies people as either being good or bad customers for a bank with respect to credit risk. It comprises a total number of 1000 observations and 20 features. Tables \ref{summary_numeric} and \ref{summary_categorical} in the Appendix present the summary statistics for the numerical and the categorical features in the original dataset, respectively. To ensure better model performance, the numerical data is standardized before model building. The dataset is partitioned into a training dataset, comprising 750 observations, and into a test dataset, comprising 250 observations.
@@ -404,7 +404,7 @@ This paper aimed to discuss and evaluate Stacking and Ensemble models in a finan
 
 A broad set of different Stacking and Ensemble models as well as standard machine learning models was applied and evaluated to a classification problem of credit risk assessment. Thereby, the Random Forest model and Gradient Boosting model outperformed standard machine learning models on behalf of the calculated metrics. Furthermore, all four Stacked Generalization approaches were able to establish a better performance on AUC, Logarithmic Loss and Brier Score than their level 0 generalizers. With regards to Accuracy metric, they performed worse, suggesting that the metric-implied cut-off threshold of $0.5$ being suboptimal. Even a simple combiner algorithm like averaging could increase performance of the Stacking model, while the Logistic Regression combiner performed best. Restricting the subset of input predictions seems to be ineffective with regards to performance issues. To conclude, Stacking and Ensemble models could show their comparative strengths in this study. The results strongly confirm their value for prediction issues in credit risk assessment.
 
-While this study focused on predicting binary outcomes, further research could evaluate the performance of Stacking and Ensemble models for regression problems in a similar context. A shortfall of Stacking and Ensemble models is their need of much computational resources caused by their complexity. In the context of \textit{scalability}, current research tests ideas that restrict computational costs, e.g. by adaptive parallelization \citep{li2014communication} or by improving intra-model algorithms like stochastic gradient descent \citep{bottou2012stochastic}. A further problem of such models is the absence of proven statistical properties like unbiasedness, consistency or asymptotic theory for construction of confidence intervals. In order to use machine learning models for research purposes, such properties are however necessary. Only recently, the field of \textit{machine learning in economics} emerged, where the development of such properties is aimed at (see \cite{athey2017impact} ,\citeauthor{wager2018est} \hyperlink{wager2018est}{(\color{DarkBlue}{in press})}). Developments in this field of research will also enable better application of machine learning models to financial research problems.
+While this study focused on predicting binary outcomes, further research could evaluate the performance of Stacking and Ensemble models for regression problems in a similar context. A shortfall of Stacking and Ensemble models is their need of much computational resources caused by their complexity. In the context of \textit{scalability}, current research tests ideas that restrict computational costs, e.g. by adaptive parallelization \citep{li2014communication} or by improving intra-model algorithms like stochastic gradient descent \citep{bottou2012stochastic}. A further problem of such models is the absence of proven statistical properties like unbiasedness, consistency or asymptotic theory for construction of confidence intervals. In order to use machine learning models for research purposes, such properties are however necessary. Only recently, the field of \textit{machine learning in economics} emerged, where the development of such properties is aimed at (see \cite{athey2017impact}, \citeauthor{wager2018est} \hyperlink{wager2018est}{(\color{Black}{in press})}). Developments in this field of research will also enable better application of machine learning models to financial research problems.
 
 
 
@@ -446,7 +446,7 @@ Feature & Category & Count & Fraction \\
 Customer Classification & good & 700 & 70\% \\ 
 (Outcome Feature) &bad & 300 & 30\% \\
 \hline
-Account Status & x < 0 DM & 274 & 27.4\% \\ 
+Account Status & x < 0 DM (D-Mark) & 274 & 27.4\% \\ 
  & 0 DM < x < 200 DM & 269 & 26.9\% \\ 
  & x >= 200 DM & 63 & 6.3\% \\ 
 & no account & 394 & 39.4\% \\ 
@@ -540,7 +540,7 @@ Foreign Worker & yes & 963 & 96.3\% \\
 ###################################################################
 # Numerical Introductory Course 2018
 # Topic: Stacking and Ensemble Modelling
-# Supervisor: Prof. Dr. Brenda L\'opez Cabrera
+# Supervisor: Prof. Dr. Brenda López Cabrera
 # Student: Frederik Schreck
 ###################################################################
 

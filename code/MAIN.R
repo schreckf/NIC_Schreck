@@ -418,7 +418,7 @@ colnames(eval_table) <- c("AUC", "Accuracy",
 print(xtable(eval_table), file="tables/evaltable.txt")
 
 # Generate plot with AUC curves for all models
-plot(performance(prediction(yhat$rf$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$rf$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -427,7 +427,7 @@ plot(performance(prediction(yhat$rf$data$prob.good,
      lty = 1, lwd = 1.2,
      xlab="1 - Specificity", ylab="Senstitivity")
 
-plot(performance(prediction(yhat$gb$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$gb$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -435,15 +435,15 @@ plot(performance(prediction(yhat$gb$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray40",
      type = "l", lty = 1, lwd = 1.2)
 
-plot(performance(prediction(yhat$dt_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$dt_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
                  , "tpr", "fpr"),
      colorize = FALSE, add = TRUE, col = "gray0",
-     type = "l", lty = 1, lwd = 1.2)
+     type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$logit_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$logit_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -451,7 +451,7 @@ plot(performance(prediction(yhat$logit_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray25", 
      type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$nnet_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$nnet_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -459,7 +459,7 @@ plot(performance(prediction(yhat$nnet_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray50", 
      type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$rf2_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$rf2_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -467,7 +467,7 @@ plot(performance(prediction(yhat$rf2_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray60", 
      type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$gb2_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$gb2_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -475,15 +475,15 @@ plot(performance(prediction(yhat$gb2_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray70", 
      type = "l", lty =2, lwd = 1.2)
 
-plot(performance(prediction(yhat$st1$prob.good, 
+plot(ROCR::performance(prediction(yhat$st1$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
                  , "tpr", "fpr"),
-     colorize = FALSE, add = TRUE, col = "gra0", 
+     colorize = FALSE, add = TRUE, col = "gray0", 
      type = "l", lty = 3, lwd = 1.2)
 
-plot(performance(prediction(yhat$st2$prob.good, 
+plot(ROCR::performance(prediction(yhat$st2$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -491,7 +491,7 @@ plot(performance(prediction(yhat$st2$prob.good,
      colorize = FALSE, add = TRUE, col = "gray25",
      type = "l", lty = 3, lwd = 1.2)
 
-plot(performance(prediction(yhat$st3[,3], 
+plot(ROCR::performance(prediction(yhat$st3[,3], 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -499,7 +499,7 @@ plot(performance(prediction(yhat$st3[,3],
      colorize = FALSE, add = TRUE, col = "gray50", 
      type = "l", lty = 3, lwd = 1.22)
 
-plot(performance(prediction(yhat$st4[,3], 
+plot(ROCR::performance(prediction(yhat$st4[,3], 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -509,7 +509,7 @@ plot(performance(prediction(yhat$st4[,3],
 
 lines(x = c(0,1), y = c(0,1))
 
-legend(xy.coords(0.6,0.57), legend = c("Random Forest", 
+legend(xy.coords(0.592,0.589), legend = c("Random Forest", 
                                        "Gradient Boosting", 
                                        "Decision Tree (level 0)",
                                        "Logit Regression (level 0)", 
@@ -520,7 +520,7 @@ legend(xy.coords(0.6,0.57), legend = c("Random Forest",
                                        "Stacking Model 2", 
                                        "Stacking Model 3", 
                                        "Stacking Model 4"), 
-      lty= c(1,1,2,2,2,2,2,3,3,3,3), cex=0.75, col=c("gray0", "gray40", 
+      lty= c(1,1,2,2,2,2,2,3,3,3,3), cex=0.78, col=c("gray0", "gray40", 
                                                      "gray0", "gray25", 
                                                      "gray50", "gray60", 
                                                      "gray70", "gray0", 

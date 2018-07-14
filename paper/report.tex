@@ -384,12 +384,13 @@ Ensemble model: Gradient Boosting & 0.78 & 0.72 & 0.52 & 0.18 \\
 Indeed, Table \ref{eval} reveals that the four Stacking models clearly outperform their level 0 generalizers in terms of AUC. Stacking models 1, 2 and 3 that are based on averaging predictions as well as a Gradient Boosting combiner have similar high AUC performance than the Random Forest and the Gradient Boosting model. Stacking model 4 that is based on combining level 0 predictions by Logistic Regression even shows a better AUC performance than the Random Forest and the Gradient Boosting model. For visual comparison, Figure \ref{aucplot} shows the ROC curves related to the AUC values for all models.
 
 \begin{figure}[!htp] \centering{
-\includegraphics[trim={0cm 0.5cm 0cm 1.8cm},clip, scale=0.85]{graphs/aucplot.pdf}}
+\includegraphics[trim={0cm 0.5cm 0cm 1.8cm},clip, scale=0.85]{graphs/auplot_final.pdf}}
 \caption[ROC curves]{Receiver Operating Characteristic (ROC) curves for the predictions of all models. The diagonal line represents the ROC curve of a random model.}\label{aucplot}
 \end{figure} 
 
 
-With regards to the Accuracy, the Logistic Regression and the Neural Network perform about equally well as the two Ensemble models. The Decision Tree is however outperformed by the Random Forest and the Gradient Boosting model. Interestingly, all four Stacking models show relatively bad values on the Accuracy metric. Regarding the relation of Accuracy and AUC, it can be concluded that the Stacking and Ensemble models do not necessarily perform better on the cut-off threshold of $0.5$, which is implied by the Accuracy metric. However, generalizing over all possible cut-off threshold they clearly outperform most level 0 generalizers as can be seen by the corresponding AUC values and the corresponding ROC curves in Figure \ref{aucplot}. Furthermore, this indicates that the standard cut-off threshold for probabilistic predictions of $0.5$ may not be optimal for those models.
+With regards to the Accuracy, the Logistic Regression and the Neural Network perform about equally well as the two Ensemble models. The Decision Tree is however outperformed by the Random Forest and the Gradient Boosting model. Interestingly, all four Stacking models show relatively bad values on the Accuracy metric. Regarding the relation of Accuracy and AUC, it can be concluded that the Stacking and Ensemble models do not necessarily perform better on the cut-off threshold of $0.5$, which is implied by the Accuracy metric. However, generalizing over all possible cut-off threshold they clearly outperform most level 0 generalizers as can be seen by the corresponding AUC values. Deeper insights can be obtained by the corresponding ROC curves in Figure \ref{aucplot}, which gives an impression on the models' relative performances. ...
+Furthermore, this indicates that the standard cut-off threshold for probabilistic predictions of $0.5$ may not be optimal for those models.
 
 The Logarithmic Loss metric gives even more information on the particular strengths and weaknesses of the models. Contrasting the level 0 generalizers with the Random Forest and the Gradient Boosting model, the latter show a slightly smaller Logarithmic Loss. The four Stacking models however, reveal a much better performance on behalf of the Logarithmic Loss metric. It can be concluded, that the Ensemble models and even more the Stacking models do not place as high confidences on their incorrect predictions. 
 
@@ -957,7 +958,7 @@ colnames(eval_table) <- c("AUC", "Accuracy",
 print(xtable(eval_table), file="tables/evaltable.txt")
 
 # Generate plot with AUC curves for all models
-plot(performance(prediction(yhat$rf$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$rf$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -966,7 +967,7 @@ plot(performance(prediction(yhat$rf$data$prob.good,
      lty = 1, lwd = 1.2,
      xlab="1 - Specificity", ylab="Senstitivity")
 
-plot(performance(prediction(yhat$gb$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$gb$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -974,15 +975,15 @@ plot(performance(prediction(yhat$gb$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray40",
      type = "l", lty = 1, lwd = 1.2)
 
-plot(performance(prediction(yhat$dt_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$dt_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
                  , "tpr", "fpr"),
      colorize = FALSE, add = TRUE, col = "gray0",
-     type = "l", lty = 1, lwd = 1.2)
+     type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$logit_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$logit_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -990,7 +991,7 @@ plot(performance(prediction(yhat$logit_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray25", 
      type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$nnet_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$nnet_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -998,7 +999,7 @@ plot(performance(prediction(yhat$nnet_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray50", 
      type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$rf2_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$rf2_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -1006,7 +1007,7 @@ plot(performance(prediction(yhat$rf2_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray60", 
      type = "l", lty = 2, lwd = 1.2)
 
-plot(performance(prediction(yhat$gb2_test$data$prob.good, 
+plot(ROCR::performance(prediction(yhat$gb2_test$data$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -1014,15 +1015,15 @@ plot(performance(prediction(yhat$gb2_test$data$prob.good,
      colorize = FALSE, add = TRUE, col = "gray70", 
      type = "l", lty =2, lwd = 1.2)
 
-plot(performance(prediction(yhat$st1$prob.good, 
+plot(ROCR::performance(prediction(yhat$st1$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
                  , "tpr", "fpr"),
-     colorize = FALSE, add = TRUE, col = "gra0", 
+     colorize = FALSE, add = TRUE, col = "gray0", 
      type = "l", lty = 3, lwd = 1.2)
 
-plot(performance(prediction(yhat$st2$prob.good, 
+plot(ROCR::performance(prediction(yhat$st2$prob.good, 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -1030,7 +1031,7 @@ plot(performance(prediction(yhat$st2$prob.good,
      colorize = FALSE, add = TRUE, col = "gray25",
      type = "l", lty = 3, lwd = 1.2)
 
-plot(performance(prediction(yhat$st3[,3], 
+plot(ROCR::performance(prediction(yhat$st3[,3], 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -1038,7 +1039,7 @@ plot(performance(prediction(yhat$st3[,3],
      colorize = FALSE, add = TRUE, col = "gray50", 
      type = "l", lty = 3, lwd = 1.22)
 
-plot(performance(prediction(yhat$st4[,3], 
+plot(ROCR::performance(prediction(yhat$st4[,3], 
                             labels = matrix(test$customer, 
                                             nrow = NROW(test$customer), 
                                             ncol = 1))
@@ -1048,7 +1049,7 @@ plot(performance(prediction(yhat$st4[,3],
 
 lines(x = c(0,1), y = c(0,1))
 
-legend(xy.coords(0.6,0.57), legend = c("Random Forest", 
+legend(xy.coords(0.592,0.589), legend = c("Random Forest", 
                                        "Gradient Boosting", 
                                        "Decision Tree (level 0)",
                                        "Logit Regression (level 0)", 
@@ -1059,7 +1060,7 @@ legend(xy.coords(0.6,0.57), legend = c("Random Forest",
                                        "Stacking Model 2", 
                                        "Stacking Model 3", 
                                        "Stacking Model 4"), 
-      lty= c(1,1,2,2,2,2,2,3,3,3,3), cex=0.75, col=c("gray0", "gray40", 
+      lty= c(1,1,2,2,2,2,2,3,3,3,3), cex=0.78, col=c("gray0", "gray40", 
                                                      "gray0", "gray25", 
                                                      "gray50", "gray60", 
                                                      "gray70", "gray0", 

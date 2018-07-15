@@ -1,13 +1,13 @@
 \contentsline {algorithm}{\numberline {1}{\ignorespaces Main File}}{17}{algorithm.1}
-\contentsline {algorithm}{\numberline {2}{\ignorespaces Gradient Boosting Model Feature Selection}}{26}{algorithm.2}
-\contentsline {algorithm}{\numberline {3}{\ignorespaces Random Forest Model Feature Selection}}{27}{algorithm.3}
-\contentsline {algorithm}{\numberline {4}{\ignorespaces Decision Tree (level 0) Feature Selection}}{28}{algorithm.4}
-\contentsline {algorithm}{\numberline {5}{\ignorespaces Logistic Regression (level 0) Feature Selection}}{28}{algorithm.5}
+\contentsline {algorithm}{\numberline {2}{\ignorespaces Ensembling: Gradient Boosting Model Feature Selection}}{26}{algorithm.2}
+\contentsline {algorithm}{\numberline {3}{\ignorespaces Ensembling: Random Forest Model Feature Selection}}{27}{algorithm.3}
+\contentsline {algorithm}{\numberline {4}{\ignorespaces Stacking: Decision Tree (level 0) Feature Selection}}{28}{algorithm.4}
+\contentsline {algorithm}{\numberline {5}{\ignorespaces Stacking: Logistic Regression (level 0) Feature Selection}}{28}{algorithm.5}
 \contentsline {algorithm}{\numberline {6}{\ignorespaces Stacking: Neural Network (level 0) Feature Selection}}{29}{algorithm.6}
-\contentsline {algorithm}{\numberline {7}{\ignorespaces Gradient Boosting (level 0) Feature Selection}}{30}{algorithm.7}
+\contentsline {algorithm}{\numberline {7}{\ignorespaces Stacking: Gradient Boosting (level 0) Feature Selection}}{30}{algorithm.7}
 \contentsline {algorithm}{\numberline {8}{\ignorespaces Stacking: Random Forest (level 0) Feature Selection}}{31}{algorithm.8}
-\contentsline {algorithm}{\numberline {9}{\ignorespaces Random Forest Model Building}}{31}{algorithm.9}
-\contentsline {algorithm}{\numberline {10}{\ignorespaces Gradient Boosting Model Building}}{33}{algorithm.10}
+\contentsline {algorithm}{\numberline {9}{\ignorespaces Ensembling: Random Forest Model Building}}{31}{algorithm.9}
+\contentsline {algorithm}{\numberline {10}{\ignorespaces Ensembling: Gradient Boosting Model Building}}{33}{algorithm.10}
 \contentsline {algorithm}{\numberline {11}{\ignorespaces Stacking: Decision Tree (level 0) Model Building}}{34}{algorithm.11}
 \contentsline {algorithm}{\numberline {12}{\ignorespaces Stacking: Logistic Regression (level 0) Model Building}}{36}{algorithm.12}
 \contentsline {algorithm}{\numberline {13}{\ignorespaces Stacking: Neural Network (level 0) Model Building}}{37}{algorithm.13}

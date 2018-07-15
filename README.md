@@ -1,4 +1,4 @@
-# Stacking algorithm for ensemble modeling
+# Stacking Algorithm for Ensemble Modeling
 This is the working repository for the Seminar *Numerical Introductory Course*. It deals with the topic of *Stacking Algorithm and Ensemble Modeling*. 
 
 ## Outline
